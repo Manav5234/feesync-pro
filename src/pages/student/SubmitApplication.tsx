@@ -158,7 +158,7 @@ export default function SubmitApplication() {
         year: form.year,
         type: form.type as ApplicationType,
         description: form.description,
-        extracted_data: extractedData,
+        extracted_data: (extractedData as JsonExtractedData) ?? null,
       });
 
       if (error || !appData) throw error;
