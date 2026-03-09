@@ -23,7 +23,7 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    const email = isAdmin ? `${form.id}@admin.feesync.com` : form.email;
+    const email = isAdmin ? form.id : form.email;
 
     if (isSignUp) {
       const { error } = await signUp(email, form.password, {
