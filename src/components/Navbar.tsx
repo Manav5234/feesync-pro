@@ -15,17 +15,14 @@ export function Navbar() {
           </div>
           <div>
             <span className="font-heading text-lg font-bold tracking-tight">FeeSync</span>
-            <span className="ml-1.5 hidden text-xs text-muted-foreground sm:inline">Your College Name</span>
+            <span className="ml-1.5 hidden text-xs text-muted-foreground sm:inline">IIIT Sonepat</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button variant="outline" size="sm" onClick={() => navigate("/login/student")}>
-            Student Login
-          </Button>
-          <Button size="sm" onClick={() => navigate("/login/admin")}>
-            Admin Login
+          <Button size="sm" onClick={() => navigate("/login")}>
+            Login
           </Button>
         </div>
       </div>

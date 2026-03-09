@@ -77,11 +77,8 @@ export default function LandingPage() {
               Track everything in real-time with AI-powered verification.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="gap-2 px-8 text-base" onClick={() => navigate("/login/student")}>
-                Login as Student <ArrowRight className="h-4 w-4" />
-              </Button>
-              <Button size="lg" variant="outline" className="gap-2 px-8 text-base" onClick={() => navigate("/login/admin")}>
-                Login as Admin <ArrowRight className="h-4 w-4" />
+              <Button size="lg" className="gap-2 px-8 text-base" onClick={() => navigate("/login")}>
+                Login to FeeSync <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
           </motion.div>
@@ -209,7 +206,7 @@ export default function LandingPage() {
                 size="lg"
                 variant="secondary"
                 className="gap-2 px-8"
-                onClick={() => navigate("/login/student")}
+                onClick={() => navigate("/login")}
               >
                 Get Started <ArrowRight className="h-4 w-4" />
               </Button>

@@ -2,6 +2,8 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -22,7 +24,6 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
-  signUp: (email: string, password: string, metadata: Record<string, unknown>) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
@@ -50,6 +51,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return data as Profile;
   };
 
+  const checkAndRedirect = async (userEmail: string | undefined) => {
+    if (!userEmail) return;
+
+    const email = userEmail.toLowerCase();
+
+    // Validate college email domain
+    if (!email.endsWith("@iiitsonepat.ac.in")) {
+      toast.error("Only college email IDs (@iiitsonepat.ac.in) are allowed");
+      await supabase.auth.signOut();
+      return;
+    }
+
+    // Check if email is in admin_emails table
+    const { data: adminData } = await supabase
+      .from("admin_emails")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle();
+
+    const isAdmin = !!adminData;
+    const currentPath = window.location.pathname;
+
+    // Only redirect if on login/root page
+    if (currentPath === "/" || currentPath.startsWith("/login")) {
+      if (isAdmin) {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/student";
+      }
+    }
+  };
+
   const refreshProfile = async () => {
     if (user) {
       const profileData = await fetchProfile(user.id);
@@ -58,17 +91,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
 
         if (currentSession?.user) {
-          // Defer profile fetch to avoid blocking
           setTimeout(async () => {
             const profileData = await fetchProfile(currentSession.user.id);
             setProfile(profileData);
+
+            // Handle redirect on sign in
+            if (event === "SIGNED_IN") {
+              await checkAndRedirect(currentSession.user.email);
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -78,7 +114,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // Then get initial session
     supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
@@ -92,29 +127,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, metadata: Record<string, unknown>) => {
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: metadata,
-        emailRedirectTo: window.location.origin,
-      },
-    });
-    return { error };
-  };
-
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+    if (!error) {
+      // Redirect will be handled by onAuthStateChange
+    }
     return { error };
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    window.location.href = "/";
   };
 
   return (
@@ -124,7 +151,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         profile,
         loading,
-        signUp,
         signIn,
         signOut,
         refreshProfile,
