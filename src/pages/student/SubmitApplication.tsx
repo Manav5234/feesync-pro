@@ -165,8 +165,8 @@ export default function SubmitApplication() {
 
       // Save documents
       const docsToSave = [
-        { file: feeReceipt, type: "fee_receipt" },
-        ...supportingDocs.map((d) => ({ file: d, type: "supporting_doc" })),
+        { file: feeReceipt, docType: "fee_receipt" },
+        ...supportingDocs.map((d) => ({ file: d, docType: "supporting_doc" })),
       ].filter((d) => d.file?.url);
 
       for (const doc of docsToSave) {
@@ -175,8 +175,8 @@ export default function SubmitApplication() {
           application_id: appData.id,
           file_url: doc.file.url,
           file_name: doc.file.file.name,
-          file_type: doc.file.file.type || doc.type,
-          extracted_data: doc.type === "fee_receipt" ? extractedData : null,
+          file_type: doc.file.file.type || doc.docType,
+          extracted_data: (doc.docType === "fee_receipt" ? extractedData as JsonExtractedData : null) ?? null,
         });
       }
 
