@@ -83,10 +83,11 @@ export default function LoginPage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="id">{isAdmin ? "Admin ID" : "Roll Number"}</Label>
+              <Label htmlFor="id">{isAdmin ? "Admin Email" : "Roll Number"}</Label>
               <Input
                 id="id"
-                placeholder={isAdmin ? "Enter Admin ID" : "Enter Roll Number"}
+                type={isAdmin ? "email" : "text"}
+                placeholder={isAdmin ? "admin@feesync.com" : "Enter Roll Number"}
                 value={form.id}
                 onChange={(e) => setForm({ ...form, id: e.target.value })}
                 required
