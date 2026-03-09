@@ -36,16 +36,16 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <ThemeProvider>
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthProvider>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/login/:role" element={<LoginPage />} />
-              <Route path="/forgot-password/:role" element={<ForgotPassword />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* Student Routes */}
@@ -69,12 +69,16 @@ const App = () => (
                 <Route path="profile" element={<AdminProfile />} />
               </Route>
 
+              {/* Legacy routes redirect */}
+              <Route path="/login/:role" element={<LoginPage />} />
+              <Route path="/forgot-password/:role" element={<ForgotPassword />} />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   </ThemeProvider>
 );
 
