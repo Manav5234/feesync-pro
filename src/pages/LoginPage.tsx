@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,20 +12,39 @@ import { toast } from "sonner";
 export default function LoginPage() {
   const { role } = useParams<{ role: "student" | "admin" }>();
   const navigate = useNavigate();
+  const { signIn, signUp } = useAuth();
   const isAdmin = role === "admin";
 
-  const [form, setForm] = useState({ id: "", email: "", password: "" });
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [form, setForm] = useState({ id: "", email: "", password: "", name: "" });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
-    // Placeholder — will connect to Supabase later
-    setTimeout(() => {
-      setLoading(false);
-      toast.info("Backend not connected yet. Enable Lovable Cloud to activate authentication.");
-    }, 800);
+    const email = isAdmin ? `${form.id}@admin.feesync.com` : form.email;
+
+    if (isSignUp) {
+      const { error } = await signUp(email, form.password, {
+        name: form.name || form.id,
+        role: isAdmin ? "admin" : "student",
+        roll_number: isAdmin ? null : form.id,
+      });
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success("Account created! Please check your email to verify.");
+      }
+    } else {
+      const { error } = await signIn(email, form.password);
+      if (error) {
+        toast.error(error.message);
+      } else {
+        navigate(isAdmin ? "/admin" : "/student");
+      }
+    }
+    setLoading(false);
   };
 
   return (
