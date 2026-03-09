@@ -23,7 +23,7 @@ type ApplicationStatus = Database["public"]["Enums"]["application_status"];
 interface Props {
   application: Application;
   onClose: () => void;
-  onStatusChange?: (id: string, status: ApplicationStatus, remarks?: string) => Promise<void>;
+  onStatusChange?: (id: string, status: ApplicationStatus, remarks?: string) => Promise<{ error: Error | null } | void>;
   mode?: "admin" | "student";
 }
 

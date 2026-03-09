@@ -114,15 +114,15 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Please wait..." : isSignUp ? "Create Account" : "Sign In"}
             </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
+              <button type="button" onClick={() => setIsSignUp(!isSignUp)} className="text-primary hover:underline">
+                {isSignUp ? "Sign In" : "Sign Up"}
+              </button>
+            </p>
           </form>
-
-          <div className="mt-6 text-center">
-            <Button variant="ghost" size="sm" className="gap-1 text-muted-foreground" onClick={() => navigate("/")}>
-              <ArrowLeft className="h-4 w-4" /> Back to Home
-            </Button>
-          </div>
         </CardContent>
       </Card>
     </div>
