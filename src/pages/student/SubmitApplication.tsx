@@ -17,14 +17,9 @@ import type { Database } from "@/integrations/supabase/types";
 import { useNavigate } from "react-router-dom";
 
 type ApplicationType = Database["public"]["Enums"]["application_type"];
+type JsonExtractedData = Database["public"]["Tables"]["applications"]["Insert"]["extracted_data"];
 
-interface ExtractedData {
-  amount?: string;
-  date?: string;
-  receipt_number?: string;
-  bank?: string;
-  payment_mode?: string;
-}
+type ExtractedData = Record<string, string>;
 
 interface UploadedFile {
   file: File;
