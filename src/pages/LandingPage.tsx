@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { PaperDropEffect } from "@/components/PaperDropEffect";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
