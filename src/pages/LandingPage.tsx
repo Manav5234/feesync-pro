@@ -1,4 +1,5 @@
 import { Navbar } from "@/components/Navbar";
+import { PaperDropEffect } from "@/components/PaperDropEffect";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -49,7 +50,8 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <PaperDropEffect />
       <Navbar />
 
       {/* Hero */}
