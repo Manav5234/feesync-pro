@@ -50,7 +50,8 @@ export default function LandingPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      <PaperDropEffect />
       <Navbar />
 
       {/* Hero */}
