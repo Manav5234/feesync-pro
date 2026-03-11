@@ -121,10 +121,10 @@ export default function LandingPage() {
             </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Features */}
-      <section className="py-20 md:py-28">
+      <motion.section className="py-20 md:py-28" style={{ y: featuresY }}>
         <div className="container">
           <motion.div
             className="mx-auto max-w-2xl text-center"
