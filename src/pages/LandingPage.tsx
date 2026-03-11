@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { PaperDropEffect } from "@/components/PaperDropEffect";
 import { Footer } from "@/components/Footer";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, Search, Bell, ShieldCheck, ArrowRight, FileText, CheckCircle2, Clock, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const features = [
   {
@@ -48,14 +49,22 @@ const fadeUp = {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
+  
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
+  const statsY = useTransform(scrollYProgress, [0.1, 0.4], [40, -20]);
+  const featuresY = useTransform(scrollYProgress, [0.2, 0.5], [60, -20]);
+  const howItWorksY = useTransform(scrollYProgress, [0.4, 0.7], [50, -15]);
+  const ctaY = useTransform(scrollYProgress, [0.6, 0.9], [40, -10]);
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div ref={containerRef} className="min-h-screen flex flex-col relative">
       <PaperDropEffect />
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <motion.section className="relative overflow-hidden" style={{ y: heroY }}>
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-info/5" />
         <div className="container relative py-20 md:py-32">
           <motion.div
@@ -92,10 +101,10 @@ export default function LandingPage() {
           <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
           <div className="pointer-events-none absolute -left-20 bottom-10 h-56 w-56 rounded-full bg-info/10 blur-3xl" />
         </div>
-      </section>
+      </motion.section>
 
       {/* Stats */}
-      <section className="border-y bg-card">
+      <motion.section className="border-y bg-card" style={{ y: statsY }}>
         <div className="container grid grid-cols-2 gap-6 py-12 md:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.div
@@ -112,10 +121,10 @@ export default function LandingPage() {
             </motion.div>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* Features */}
-      <section className="py-20 md:py-28">
+      <motion.section className="py-20 md:py-28" style={{ y: featuresY }}>
         <div className="container">
           <motion.div
             className="mx-auto max-w-2xl text-center"
@@ -154,10 +163,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* How it works */}
-      <section className="border-y bg-card py-20">
+      <motion.section className="border-y bg-card py-20" style={{ y: howItWorksY }}>
         <div className="container">
           <motion.h2
             className="text-center font-heading text-3xl font-bold md:text-4xl"
@@ -192,10 +201,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA */}
-      <section className="py-20">
+      <motion.section className="py-20" style={{ y: ctaY }}>
         <div className="container">
           <motion.div
             className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-r from-primary to-info p-10 text-center text-primary-foreground md:p-14"
@@ -210,13 +219,13 @@ export default function LandingPage() {
               <Button size="lg" variant="secondary" className="gap-2 px-8" onClick={() => navigate("/student-auth")}>
                 <GraduationCap className="h-4 w-4" /> Student Portal
               </Button>
-              <Button size="lg" variant="outline" className="gap-2 px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/admin-auth")}>
+              <Button size="lg" variant="outline" className="gap-2 px-8 border-white/40 bg-white/15 text-white hover:bg-white/25" onClick={() => navigate("/admin-auth")}>
                 <ShieldCheck className="h-4 w-4" /> Admin Portal
               </Button>
             </div>
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       <Footer />
     </div>
