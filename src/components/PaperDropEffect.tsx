@@ -21,16 +21,16 @@ export function PaperDropEffect() {
   const [papers, setPapers] = useState<Paper[]>([]);
 
   useEffect(() => {
-    const generated: Paper[] = Array.from({ length: 18 }, (_, i) => ({
+    const generated: Paper[] = Array.from({ length: 22 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
-      delay: Math.random() * 10,
-      duration: 12 + Math.random() * 14,
-      rotation: -40 + Math.random() * 80,
-      rotateX: -20 + Math.random() * 40,
-      rotateY: -30 + Math.random() * 60,
-      size: 20 + Math.random() * 28,
-      opacity: 0.08 + Math.random() * 0.15,
+      delay: Math.random() * 12,
+      duration: 14 + Math.random() * 16,
+      rotation: -50 + Math.random() * 100,
+      rotateX: -30 + Math.random() * 60,
+      rotateY: -40 + Math.random() * 80,
+      size: 32 + Math.random() * 44,
+      opacity: 0.12 + Math.random() * 0.22,
       icon: Math.floor(Math.random() * icons.length),
     }));
     setPapers(generated);
