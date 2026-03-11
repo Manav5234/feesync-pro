@@ -219,7 +219,7 @@ export default function LandingPage() {
               <Button size="lg" variant="secondary" className="gap-2 px-8" onClick={() => navigate("/student-auth")}>
                 <GraduationCap className="h-4 w-4" /> Student Portal
               </Button>
-              <Button size="lg" variant="outline" className="gap-2 px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/admin-auth")}>
+              <Button size="lg" variant="outline" className="gap-2 px-8 border-white/40 bg-white/15 text-white hover:bg-white/25" onClick={() => navigate("/admin-auth")}>
                 <ShieldCheck className="h-4 w-4" /> Admin Portal
               </Button>
             </div>
