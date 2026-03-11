@@ -21,16 +21,16 @@ export function PaperDropEffect() {
   const [papers, setPapers] = useState<Paper[]>([]);
 
   useEffect(() => {
-    const generated: Paper[] = Array.from({ length: 18 }, (_, i) => ({
+    const generated: Paper[] = Array.from({ length: 22 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
-      delay: Math.random() * 10,
-      duration: 12 + Math.random() * 14,
-      rotation: -40 + Math.random() * 80,
-      rotateX: -20 + Math.random() * 40,
-      rotateY: -30 + Math.random() * 60,
-      size: 20 + Math.random() * 28,
-      opacity: 0.08 + Math.random() * 0.15,
+      delay: Math.random() * 12,
+      duration: 14 + Math.random() * 16,
+      rotation: -50 + Math.random() * 100,
+      rotateX: -30 + Math.random() * 60,
+      rotateY: -40 + Math.random() * 80,
+      size: 32 + Math.random() * 44,
+      opacity: 0.12 + Math.random() * 0.22,
       icon: Math.floor(Math.random() * icons.length),
     }));
     setPapers(generated);
@@ -74,24 +74,26 @@ export function PaperDropEffect() {
               className="relative"
               style={{
                 transformStyle: "preserve-3d",
-                filter: `drop-shadow(0 4px 12px hsl(var(--primary) / 0.15))`,
+                filter: `drop-shadow(0 6px 20px hsl(var(--primary) / 0.25))`,
               }}
             >
               {/* Front face */}
               <div
-                className="text-primary/40"
+                className="text-primary/50 bg-primary/[0.04] rounded-lg p-1.5"
                 style={{
                   backfaceVisibility: "hidden",
+                  boxShadow: "inset 0 0 12px hsl(var(--primary) / 0.08)",
                 }}
               >
-                <Icon style={{ width: p.size, height: p.size }} strokeWidth={1.5} />
+                <Icon style={{ width: p.size, height: p.size }} strokeWidth={1.4} />
               </div>
               {/* Back face */}
               <div
-                className="absolute inset-0 text-primary/20"
+                className="absolute inset-0 text-primary/30 bg-primary/[0.03] rounded-lg p-1.5"
                 style={{
                   backfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
+                  boxShadow: "inset 0 0 12px hsl(var(--primary) / 0.06)",
                 }}
               >
                 <Icon style={{ width: p.size, height: p.size }} strokeWidth={1} />
