@@ -163,10 +163,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* How it works */}
-      <section className="border-y bg-card py-20">
+      <motion.section className="border-y bg-card py-20" style={{ y: howItWorksY }}>
         <div className="container">
           <motion.h2
             className="text-center font-heading text-3xl font-bold md:text-4xl"
