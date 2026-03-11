@@ -55,27 +55,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userEmail) return;
 
     const email = userEmail.toLowerCase();
+    const currentPath = window.location.pathname;
 
-    // Validate college email domain
-    if (!email.endsWith("@iiitsonepat.ac.in")) {
-      toast.error("Only college email IDs (@iiitsonepat.ac.in) are allowed");
-      await supabase.auth.signOut();
+    // Admin auth flow - check admin_emails, no domain restriction
+    if (currentPath === "/admin-auth") {
+      const { data: adminData } = await supabase
+        .from("admin_emails")
+        .select("email")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (adminData) {
+        window.location.href = "/admin";
+      } else {
+        toast.error("You are not authorized as admin");
+        await supabase.auth.signOut();
+      }
       return;
     }
 
-    // Check if email is in admin_emails table
-    const { data: adminData } = await supabase
-      .from("admin_emails")
-      .select("email")
-      .eq("email", email)
-      .maybeSingle();
+    // Student auth flow - college email only
+    if (currentPath === "/student-auth") {
+      if (!email.endsWith("@iiitsonepat.ac.in")) {
+        toast.error("Only college email allowed (@iiitsonepat.ac.in)");
+        await supabase.auth.signOut();
+        return;
+      }
+      window.location.href = "/student";
+      return;
+    }
 
-    const isAdmin = !!adminData;
-    const currentPath = window.location.pathname;
-
-    // Only redirect if on login/root page
+    // Generic redirect for root/legacy paths
     if (currentPath === "/" || currentPath.startsWith("/login")) {
-      if (isAdmin) {
+      const { data: adminData } = await supabase
+        .from("admin_emails")
+        .select("email")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (adminData) {
         window.location.href = "/admin";
       } else {
         window.location.href = "/student";

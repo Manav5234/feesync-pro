@@ -207,13 +207,11 @@ export default function LandingPage() {
             <h2 className="font-heading text-2xl font-bold md:text-3xl">Ready to Go Paperless?</h2>
             <p className="mt-3 opacity-90">Join your college's digital fee management system today.</p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="gap-2 px-8"
-                onClick={() => navigate("/login")}
-              >
-                Get Started <ArrowRight className="h-4 w-4" />
+              <Button size="lg" variant="secondary" className="gap-2 px-8" onClick={() => navigate("/student-auth")}>
+                <GraduationCap className="h-4 w-4" /> Student Portal
+              </Button>
+              <Button size="lg" variant="outline" className="gap-2 px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/admin-auth")}>
+                <ShieldCheck className="h-4 w-4" /> Admin Portal
               </Button>
             </div>
           </motion.div>
