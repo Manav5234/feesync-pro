@@ -49,14 +49,22 @@ const fadeUp = {
 
 export default function LandingPage() {
   const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: containerRef, offset: ["start start", "end end"] });
+  
+  const heroY = useTransform(scrollYProgress, [0, 0.3], [0, -80]);
+  const statsY = useTransform(scrollYProgress, [0.1, 0.4], [40, -20]);
+  const featuresY = useTransform(scrollYProgress, [0.2, 0.5], [60, -20]);
+  const howItWorksY = useTransform(scrollYProgress, [0.4, 0.7], [50, -15]);
+  const ctaY = useTransform(scrollYProgress, [0.6, 0.9], [40, -10]);
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div ref={containerRef} className="min-h-screen flex flex-col relative">
       <PaperDropEffect />
       <Navbar />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <motion.section className="relative overflow-hidden" style={{ y: heroY }}>
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-info/5" />
         <div className="container relative py-20 md:py-32">
           <motion.div
