@@ -26,7 +26,7 @@ export function useApplications(options: UseApplicationsOptions = {}) {
       .select("*")
       .order("submitted_at", { ascending: false });
 
-    if (options.studentOnly || profile?.role === "student") {
+    if (options.studentOnly ) {
       query = query.eq("student_id", user.id);
     }
 
