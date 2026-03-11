@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { PaperDropEffect } from "@/components/PaperDropEffect";
 import { Footer } from "@/components/Footer";
@@ -5,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Upload, Search, Bell, ShieldCheck, ArrowRight, FileText, CheckCircle2, Clock, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const features = [
   {
