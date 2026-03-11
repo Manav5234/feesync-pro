@@ -74,24 +74,26 @@ export function PaperDropEffect() {
               className="relative"
               style={{
                 transformStyle: "preserve-3d",
-                filter: `drop-shadow(0 4px 12px hsl(var(--primary) / 0.15))`,
+                filter: `drop-shadow(0 6px 20px hsl(var(--primary) / 0.25))`,
               }}
             >
               {/* Front face */}
               <div
-                className="text-primary/40"
+                className="text-primary/50 bg-primary/[0.04] rounded-lg p-1.5"
                 style={{
                   backfaceVisibility: "hidden",
+                  boxShadow: "inset 0 0 12px hsl(var(--primary) / 0.08)",
                 }}
               >
-                <Icon style={{ width: p.size, height: p.size }} strokeWidth={1.5} />
+                <Icon style={{ width: p.size, height: p.size }} strokeWidth={1.4} />
               </div>
               {/* Back face */}
               <div
-                className="absolute inset-0 text-primary/20"
+                className="absolute inset-0 text-primary/30 bg-primary/[0.03] rounded-lg p-1.5"
                 style={{
                   backfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
+                  boxShadow: "inset 0 0 12px hsl(var(--primary) / 0.06)",
                 }}
               >
                 <Icon style={{ width: p.size, height: p.size }} strokeWidth={1} />
