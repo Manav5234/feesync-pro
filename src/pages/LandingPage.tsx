@@ -101,10 +101,10 @@ export default function LandingPage() {
           <div className="pointer-events-none absolute -right-20 top-20 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
           <div className="pointer-events-none absolute -left-20 bottom-10 h-56 w-56 rounded-full bg-info/10 blur-3xl" />
         </div>
-      </section>
+      </motion.section>
 
       {/* Stats */}
-      <section className="border-y bg-card">
+      <motion.section className="border-y bg-card" style={{ y: statsY }}>
         <div className="container grid grid-cols-2 gap-6 py-12 md:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.div
