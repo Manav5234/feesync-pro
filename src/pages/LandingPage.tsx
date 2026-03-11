@@ -201,10 +201,10 @@ export default function LandingPage() {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* CTA */}
-      <section className="py-20">
+      <motion.section className="py-20" style={{ y: ctaY }}>
         <div className="container">
           <motion.div
             className="mx-auto max-w-2xl rounded-2xl bg-gradient-to-r from-primary to-info p-10 text-center text-primary-foreground md:p-14"
