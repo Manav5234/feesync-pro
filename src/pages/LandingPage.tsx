@@ -79,11 +79,11 @@ export default function LandingPage() {
               Track everything in real-time with AI-powered verification.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="gap-2 px-8 text-base" onClick={() => navigate("/signup")}>
-                Student Sign Up <ArrowRight className="h-4 w-4" />
+              <Button size="lg" className="gap-2 px-8 text-base" onClick={() => navigate("/student-auth")}>
+                Student Login <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline" className="gap-2 px-8 text-base" onClick={() => navigate("/login")}>
-                Login <ArrowRight className="h-4 w-4" />
+              <Button size="lg" variant="outline" className="gap-2 px-8 text-base" onClick={() => navigate("/admin-auth")}>
+                Admin Login <ShieldCheck className="h-4 w-4" />
               </Button>
             </div>
           </motion.div>
