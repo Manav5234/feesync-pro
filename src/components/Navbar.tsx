@@ -21,11 +21,11 @@ export function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button size="sm" variant="outline" onClick={() => navigate("/login")}>
-            Login
+          <Button size="sm" variant="outline" onClick={() => navigate("/student-auth")}>
+            Student Login
           </Button>
-          <Button size="sm" onClick={() => navigate("/signup")}>
-            Sign Up
+          <Button size="sm" onClick={() => navigate("/admin-auth")}>
+            Admin Login
           </Button>
         </div>
       </div>

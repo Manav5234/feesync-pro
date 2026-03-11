@@ -3,7 +3,7 @@ import { PaperDropEffect } from "@/components/PaperDropEffect";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, Search, Bell, ShieldCheck, ArrowRight, FileText, CheckCircle2, Clock } from "lucide-react";
+import { Upload, Search, Bell, ShieldCheck, ArrowRight, FileText, CheckCircle2, Clock, GraduationCap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 
@@ -79,11 +79,11 @@ export default function LandingPage() {
               Track everything in real-time with AI-powered verification.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-              <Button size="lg" className="gap-2 px-8 text-base" onClick={() => navigate("/signup")}>
-                Student Sign Up <ArrowRight className="h-4 w-4" />
+              <Button size="lg" className="gap-2 px-8 text-base" onClick={() => navigate("/student-auth")}>
+                Student Login <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline" className="gap-2 px-8 text-base" onClick={() => navigate("/login")}>
-                Login <ArrowRight className="h-4 w-4" />
+              <Button size="lg" variant="outline" className="gap-2 px-8 text-base" onClick={() => navigate("/admin-auth")}>
+                Admin Login <ShieldCheck className="h-4 w-4" />
               </Button>
             </div>
           </motion.div>
@@ -207,13 +207,11 @@ export default function LandingPage() {
             <h2 className="font-heading text-2xl font-bold md:text-3xl">Ready to Go Paperless?</h2>
             <p className="mt-3 opacity-90">Join your college's digital fee management system today.</p>
             <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Button
-                size="lg"
-                variant="secondary"
-                className="gap-2 px-8"
-                onClick={() => navigate("/login")}
-              >
-                Get Started <ArrowRight className="h-4 w-4" />
+              <Button size="lg" variant="secondary" className="gap-2 px-8" onClick={() => navigate("/student-auth")}>
+                <GraduationCap className="h-4 w-4" /> Student Portal
+              </Button>
+              <Button size="lg" variant="outline" className="gap-2 px-8 border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10" onClick={() => navigate("/admin-auth")}>
+                <ShieldCheck className="h-4 w-4" /> Admin Portal
               </Button>
             </div>
           </motion.div>

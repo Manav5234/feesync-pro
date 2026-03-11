@@ -9,8 +9,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
+import StudentAuth from "./pages/StudentAuth";
+import AdminAuth from "./pages/AdminAuth";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
@@ -45,10 +45,15 @@ const App = () => (
           <AuthProvider>
             <Routes>
               <Route path="/" element={<LandingPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/student-auth" element={<StudentAuth />} />
+              <Route path="/admin-auth" element={<AdminAuth />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+
+              {/* Legacy routes */}
+              <Route path="/login" element={<StudentAuth />} />
+              <Route path="/login/:role" element={<StudentAuth />} />
+              <Route path="/signup" element={<StudentAuth />} />
 
               {/* Student Routes */}
               <Route path="/student" element={<ProtectedRoute allowedRoles={["student"]}><StudentLayout /></ProtectedRoute>}>
@@ -71,10 +76,7 @@ const App = () => (
                 <Route path="profile" element={<AdminProfile />} />
               </Route>
 
-              {/* Legacy routes redirect */}
-              <Route path="/login/:role" element={<LoginPage />} />
               <Route path="/forgot-password/:role" element={<ForgotPassword />} />
-
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>
