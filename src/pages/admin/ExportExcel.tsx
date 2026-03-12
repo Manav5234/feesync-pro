@@ -37,12 +37,25 @@ export default function ExportExcel() {
     fetchDocs();
   }, [applications]);
 
-  const handleExport = () => {
+  const handleExport = async () => {
     setExporting(true);
     try {
+      // Fetch documents fresh at export time to avoid race conditions
+      const appIds = applications.map((a) => a.id);
+      const { data: allDocs } = await supabase
+        .from("documents")
+        .select("*")
+        .in("application_id", appIds);
+
+      const freshDocsMap: Record<string, AppDocument[]> = {};
+      (allDocs || []).forEach((doc) => {
+        if (!freshDocsMap[doc.application_id]) freshDocsMap[doc.application_id] = [];
+        freshDocsMap[doc.application_id].push(doc);
+      });
+
       const data = applications.map((app) => {
-        const docs = docsMap[app.id] || [];
-        const docLinks = docs.map((d, i) => d.file_url).join(" | ");
+        const docs = freshDocsMap[app.id] || [];
+        const docLinks = docs.map((d) => d.file_url).join(" | ");
         const docNames = docs.map((d) => d.file_name).join(" | ");
 
         return {
@@ -64,14 +77,12 @@ export default function ExportExcel() {
       const ws = XLSX.utils.json_to_sheet(data);
 
       // Make document links clickable hyperlinks
-      const range = XLSX.utils.decode_range(ws["!ref"] || "A1");
       const linkColIndex = Object.keys(data[0] || {}).indexOf("Document Links");
       if (linkColIndex >= 0 && data.length > 0) {
         for (let row = 1; row <= data.length; row++) {
           const cellRef = XLSX.utils.encode_cell({ r: row, c: linkColIndex });
           const cell = ws[cellRef];
           if (cell && cell.v) {
-            // For single links, add hyperlink
             const links = String(cell.v).split(" | ").filter(Boolean);
             if (links.length === 1) {
               cell.l = { Target: links[0], Tooltip: "Download Document" };
