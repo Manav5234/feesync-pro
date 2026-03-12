@@ -40,7 +40,6 @@ export default function ExportExcel() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      // Fetch documents fresh at export time to avoid race conditions
       const appIds = applications.map((a) => a.id);
       const { data: allDocs } = await supabase
         .from("documents")
@@ -48,17 +47,16 @@ export default function ExportExcel() {
         .in("application_id", appIds);
 
       const freshDocsMap: Record<string, AppDocument[]> = {};
+      let maxDocs = 0;
       (allDocs || []).forEach((doc) => {
         if (!freshDocsMap[doc.application_id]) freshDocsMap[doc.application_id] = [];
         freshDocsMap[doc.application_id].push(doc);
+        maxDocs = Math.max(maxDocs, freshDocsMap[doc.application_id].length);
       });
 
       const data = applications.map((app) => {
         const docs = freshDocsMap[app.id] || [];
-        const docLinks = docs.map((d) => d.file_url).join(" | ");
-        const docNames = docs.map((d) => d.file_name).join(" | ");
-
-        return {
+        const row: Record<string, string> = {
           "Roll No": app.roll_no,
           "Name": app.name,
           "Course": app.course,
@@ -69,31 +67,33 @@ export default function ExportExcel() {
           "Status": app.status,
           "Verified At": app.verified_at ? format(new Date(app.verified_at), "dd/MM/yyyy") : "",
           "Remarks": app.remarks || "",
-          "Document Names": docNames,
-          "Document Links": docLinks,
         };
+        // Add each document as a separate column
+        for (let i = 0; i < maxDocs; i++) {
+          row[`Document ${i + 1}`] = docs[i] ? docs[i].file_url : "";
+        }
+        return row;
       });
 
       const ws = XLSX.utils.json_to_sheet(data);
 
-      // Make document links clickable hyperlinks
-      const linkColIndex = Object.keys(data[0] || {}).indexOf("Document Links");
-      if (linkColIndex >= 0 && data.length > 0) {
-        for (let row = 1; row <= data.length; row++) {
-          const cellRef = XLSX.utils.encode_cell({ r: row, c: linkColIndex });
-          const cell = ws[cellRef];
-          if (cell && cell.v) {
-            const links = String(cell.v).split(" | ").filter(Boolean);
-            if (links.length === 1) {
-              cell.l = { Target: links[0], Tooltip: "Download Document" };
+      // Make each document column a clickable hyperlink
+      if (data.length > 0) {
+        const keys = Object.keys(data[0]);
+        keys.forEach((key, colIdx) => {
+          if (!key.startsWith("Document ")) return;
+          for (let row = 1; row <= data.length; row++) {
+            const cellRef = XLSX.utils.encode_cell({ r: row, c: colIdx });
+            const cell = ws[cellRef];
+            if (cell && cell.v) {
+              cell.l = { Target: String(cell.v), Tooltip: `Download ${key}` };
             }
           }
-        }
+        });
       }
 
-      // Auto-size columns
       const colWidths = Object.keys(data[0] || {}).map((key) => ({
-        wch: Math.max(key.length, 15),
+        wch: key.startsWith("Document") ? 50 : Math.max(key.length, 15),
       }));
       ws["!cols"] = colWidths;
 
