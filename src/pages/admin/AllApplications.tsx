@@ -101,27 +101,27 @@ export default function AllApplications({ filterStatus }: { filterStatus?: Appli
                       <Button variant="ghost" size="sm" onClick={() => setSelectedApp(app)} title="View details">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      {app.status !== "verified" && app.status !== "rejected" && (
-                        <>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                            onClick={() => openRemarkModal(app, "verified")}
-                            title="Verify"
-                          >
-                            <CheckCircle className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                            onClick={() => openRemarkModal(app, "rejected")}
-                            title="Reject"
-                          >
-                            <XCircle className="h-4 w-4" />
-                          </Button>
-                        </>
+                      {app.status !== "verified" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          onClick={() => openRemarkModal(app, "verified")}
+                          title="Verify"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                      )}
+                      {app.status !== "rejected" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => openRemarkModal(app, "rejected")}
+                          title="Reject"
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
                   </TableCell>

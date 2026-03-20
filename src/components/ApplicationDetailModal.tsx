@@ -167,7 +167,7 @@ export function ApplicationDetailModal({ application, onClose, onStatusChange, m
           </div>
 
           {/* Admin Actions */}
-          {mode === "admin" && application.status !== "verified" && application.status !== "rejected" && (
+          {mode === "admin" && (
             <div className="border-t pt-4 space-y-3">
               {showRejectForm ? (
                 <div className="space-y-3">
