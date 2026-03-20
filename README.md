@@ -1,73 +1,99 @@
-# Welcome to your Lovable project
+<div align="center">
 
-## Project info
+# 🎓 FeeSync Pro
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+### College Fee Management System for IIIT Sonepat
 
-## How can I edit this code?
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-feesync--pro.vercel.app-brightgreen?style=for-the-badge)](https://feesync-pro.vercel.app)
+[![Made with React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com)
+[![Deployed on Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com)
 
-There are several ways of editing your application.
+</div>
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+## 📌 About
 
-Changes made via Lovable will be committed automatically to this repo.
+**FeeSync Pro** is a full-stack web application built for **IIIT Sonepat** to streamline the college fee receipt submission and verification process.
 
-**Use your preferred IDE**
+Students submit their fee receipts online → Admins verify them → Students get notified instantly. No paperwork. No confusion.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## ✨ Features
 
-Follow these steps:
+### 👨‍🎓 Student Portal
+- 🔐 Login with Google OAuth or Email/Password (`@iiitsonepat.ac.in` only)
+- 📝 Submit fee/scholarship applications with details
+- 📁 Track all submitted applications & their status
+- 🔔 Receive real-time notifications when verified/rejected
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 🛡️ Admin Portal
+- 🔐 Secure admin-only login (manually whitelisted emails)
+- 📊 Dashboard with total, pending, verified & rejected counts
+- ✅ Verify or ❌ reject applications with remarks
+- 📦 Bulk verify/reject multiple applications at once
+- 📤 Export data to Excel roll-number wise
+- 📢 Broadcast notifications to students
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## 🛠️ Tech Stack
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React + Vite + TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| Backend | Supabase (PostgreSQL + Auth + RLS) |
+| Deployment | Vercel |
+| Auth | Google OAuth + Email/Password |
+
+---
+
+## 🗄️ Database Tables
+
+- `profiles` — student/admin user profiles
+- `applications` — fee/scholarship submissions
+- `documents` — uploaded documents
+- `notifications` — student notifications
+- `admin_emails` — whitelisted admin emails
+- `user_roles` — role management
+
+---
+
+## 🚀 Getting Started
+```bash
+# Clone the repo
+git clone https://github.com/Manav5234/feesync-pro.git
+
+# Navigate into the project
+cd feesync-pro
+
+# Install dependencies
+npm install
+
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Environment Variables
+Create a `.env` file:
+```env
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 👨‍💻 Developer
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+**Manav** — 1st Year CSE @ IIIT Sonepat
 
-## What technologies are used for this project?
+[![GitHub](https://img.shields.io/badge/GitHub-Manav5234-black?style=flat&logo=github)](https://github.com/Manav5234)
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+<div align="center">
+Built with ❤️ for IIIT Sonepat
+</div>
