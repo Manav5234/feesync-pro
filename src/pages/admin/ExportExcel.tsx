@@ -1,45 +1,52 @@
-import { useEffect, useState } from "react";
-import { useApplications } from "@/hooks/useApplications";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Download, FileSpreadsheet, Loader2 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Download, FileSpreadsheet, Loader2, CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
+import { cn } from "@/lib/utils";
 import type { Database } from "@/integrations/supabase/types";
 
+type Application = Database["public"]["Tables"]["applications"]["Row"];
 type AppDocument = Database["public"]["Tables"]["documents"]["Row"];
 
 export default function ExportExcel() {
-  const { applications, loading } = useApplications();
-  const [docsMap, setDocsMap] = useState<Record<string, AppDocument[]>>({});
+  const [fromDate, setFromDate] = useState<Date | undefined>();
+  const [toDate, setToDate] = useState<Date | undefined>();
   const [exporting, setExporting] = useState(false);
 
-  // Fetch all documents for all applications
-  useEffect(() => {
-    if (applications.length === 0) return;
-    const fetchDocs = async () => {
-      const appIds = applications.map((a) => a.id);
-      const { data } = await supabase
-        .from("documents")
-        .select("*")
-        .in("application_id", appIds);
-      if (data) {
-        const map: Record<string, AppDocument[]> = {};
-        data.forEach((doc) => {
-          if (!map[doc.application_id]) map[doc.application_id] = [];
-          map[doc.application_id].push(doc);
-        });
-        setDocsMap(map);
-      }
-    };
-    fetchDocs();
-  }, [applications]);
-
   const handleExport = async () => {
+    if (!fromDate || !toDate) {
+      toast.error("Please select both From and To dates");
+      return;
+    }
+
+    if (fromDate > toDate) {
+      toast.error("From date must be before To date");
+      return;
+    }
+
     setExporting(true);
     try {
+      const { data: applications, error } = await supabase
+        .from("applications")
+        .select("*")
+        .gte("submitted_at", startOfDay(fromDate).toISOString())
+        .lte("submitted_at", endOfDay(toDate).toISOString())
+        .order("submitted_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (!applications || applications.length === 0) {
+        toast.error("No applications found in this date range");
+        setExporting(false);
+        return;
+      }
+
       const appIds = applications.map((a) => a.id);
       const { data: allDocs } = await supabase
         .from("documents")
@@ -68,7 +75,6 @@ export default function ExportExcel() {
           "Verified At": app.verified_at ? format(new Date(app.verified_at), "dd/MM/yyyy") : "",
           "Remarks": app.remarks || "",
         };
-        // Add each document as a separate column
         for (let i = 0; i < maxDocs; i++) {
           row[`Document ${i + 1}`] = docs[i] ? docs[i].file_url : "";
         }
@@ -77,7 +83,6 @@ export default function ExportExcel() {
 
       const ws = XLSX.utils.json_to_sheet(data);
 
-      // Make each document column a clickable hyperlink
       if (data.length > 0) {
         const keys = Object.keys(data[0]);
         keys.forEach((key, colIdx) => {
@@ -99,8 +104,14 @@ export default function ExportExcel() {
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Applications");
-      XLSX.writeFile(wb, `FeeSync_Applications_${format(new Date(), "yyyy-MM-dd")}.xlsx`);
-      toast.success("Excel file exported with document links!");
+      XLSX.writeFile(
+        wb,
+        `FeeSync_${format(fromDate, "dd-MM-yyyy")}_to_${format(toDate, "dd-MM-yyyy")}.xlsx`
+      );
+      toast.success(`Exported ${applications.length} applications`);
+    } catch (err) {
+      toast.error("Export failed");
+      console.error(err);
     } finally {
       setExporting(false);
     }
@@ -111,15 +122,93 @@ export default function ExportExcel() {
       <h1 className="text-2xl font-heading font-bold">Export Data</h1>
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2"><FileSpreadsheet className="h-5 w-5" /> Export to Excel</CardTitle>
-          <CardDescription>Download all application data with document links as an Excel spreadsheet</CardDescription>
+          <CardTitle className="flex items-center gap-2">
+            <FileSpreadsheet className="h-5 w-5" /> Export to Excel
+          </CardTitle>
+          <CardDescription>
+            Select a date range to export applications submitted during that period
+          </CardDescription>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Total records: {applications.length} • Documents will be included as clickable links
-          </p>
-          <Button onClick={handleExport} disabled={loading || exporting || applications.length === 0}>
-            {exporting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+        <CardContent className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* From Date */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">From Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !fromDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {fromDate ? format(fromDate, "dd MMM yyyy") : "Pick start date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={fromDate}
+                    onSelect={setFromDate}
+                    disabled={(date) => date > new Date()}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* To Date */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">To Date</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !toDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {toDate ? format(toDate, "dd MMM yyyy") : "Pick end date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={toDate}
+                    onSelect={setToDate}
+                    disabled={(date) => date > new Date() || (fromDate ? date < fromDate : false)}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          {fromDate && toDate && (
+            <p className="text-sm text-muted-foreground rounded-lg border p-3 bg-muted/30">
+              Exporting applications from{" "}
+              <span className="font-medium text-foreground">{format(fromDate, "dd MMM yyyy")}</span>{" "}
+              to{" "}
+              <span className="font-medium text-foreground">{format(toDate, "dd MMM yyyy")}</span>
+            </p>
+          )}
+
+          <Button
+            onClick={handleExport}
+            disabled={exporting || !fromDate || !toDate}
+            className="w-full sm:w-auto"
+          >
+            {exporting ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="mr-2 h-4 w-4" />
+            )}
             Download Excel
           </Button>
         </CardContent>
