@@ -167,7 +167,7 @@ export function ApplicationDetailModal({ application, onClose, onStatusChange, m
           </div>
 
           {/* Admin Actions */}
-          {mode === "admin" && application.status !== "verified" && application.status !== "rejected" && (
+          {mode === "admin" && (
             <div className="border-t pt-4 space-y-3">
               {showRejectForm ? (
                 <div className="space-y-3">
@@ -194,35 +194,41 @@ export function ApplicationDetailModal({ application, onClose, onStatusChange, m
                 </div>
               ) : (
                 <div className="flex gap-2">
-                  <Button
-                    className="flex-1"
-                    onClick={() => handleStatusChange("verified")}
-                    disabled={updating}
-                  >
-                    {updating ? (
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    ) : (
-                      <CheckCircle className="mr-2 h-4 w-4" />
-                    )}
-                    Verify
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleStatusChange("under_review")}
-                    disabled={updating}
-                  >
-                    Mark Under Review
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    className="flex-1"
-                    onClick={() => setShowRejectForm(true)}
-                    disabled={updating}
-                  >
-                    <XCircle className="mr-2 h-4 w-4" />
-                    Reject
-                  </Button>
+                  {application.status !== "verified" && (
+                    <Button
+                      className="flex-1"
+                      onClick={() => handleStatusChange("verified")}
+                      disabled={updating}
+                    >
+                      {updating ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                      )}
+                      Verify
+                    </Button>
+                  )}
+                  {application.status !== "under_review" && (
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => handleStatusChange("under_review")}
+                      disabled={updating}
+                    >
+                      Mark Under Review
+                    </Button>
+                  )}
+                  {application.status !== "rejected" && (
+                    <Button
+                      variant="destructive"
+                      className="flex-1"
+                      onClick={() => setShowRejectForm(true)}
+                      disabled={updating}
+                    >
+                      <XCircle className="mr-2 h-4 w-4" />
+                      Reject
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
