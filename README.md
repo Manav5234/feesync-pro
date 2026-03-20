@@ -19,6 +19,10 @@
 
 Students submit their fee receipts online → Admins verify them → Students get notified instantly. No paperwork. No confusion.
 
+This is made by me completely with my skills and vibe coding .
+Note --> Dont assume that this is fully written by me but with my skills and AI.
+My Message --> My only purpose in this project is to learn new things,new extensions and how i can solve my real life problem and make its own solution. 
+
 ---
 
 ## ✨ Features
