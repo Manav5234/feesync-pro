@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
@@ -55,50 +54,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!userEmail) return;
 
     const email = userEmail.toLowerCase();
-    const currentPath = window.location.pathname;
 
-    // Admin auth flow - check admin_emails, no domain restriction
-    if (currentPath === "/admin-auth") {
-      const { data: adminData } = await supabase
-        .from("admin_emails")
-        .select("email")
-        .eq("email", email)
-        .maybeSingle();
+    // Always check admin first
+    const { data: adminData } = await supabase
+      .from("admin_emails")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle();
 
-      if (adminData) {
-        window.location.href = "/admin";
-      } else {
-        toast.error("You are not authorized as admin");
-        await supabase.auth.signOut();
-      }
+    if (adminData) {
+      // It's an admin
+      window.location.href = "/admin";
       return;
     }
 
-    // Student auth flow - college email only
-    if (currentPath === "/student-auth") {
-      if (!email.endsWith("@iiitsonepat.ac.in")) {
-        toast.error("Only college email allowed (@iiitsonepat.ac.in)");
-        await supabase.auth.signOut();
-        return;
-      }
-      window.location.href = "/student";
+    // It's a student — check college email
+    if (!email.endsWith("@iiitsonepat.ac.in")) {
+      toast.error("Only college email allowed (@iiitsonepat.ac.in)");
+      await supabase.auth.signOut();
+      window.location.href = "/";
       return;
     }
 
-    // Generic redirect for root/legacy paths
-    if (currentPath === "/" || currentPath.startsWith("/login")) {
-      const { data: adminData } = await supabase
-        .from("admin_emails")
-        .select("email")
-        .eq("email", email)
-        .maybeSingle();
-
-      if (adminData) {
-        window.location.href = "/admin";
-      } else {
-        window.location.href = "/student";
-      }
-    }
+    // Valid student
+    window.location.href = "/student";
   };
 
   const refreshProfile = async () => {
@@ -119,7 +98,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const profileData = await fetchProfile(currentSession.user.id);
             setProfile(profileData);
 
-            // Handle redirect on sign in
             if (event === "SIGNED_IN") {
               await checkAndRedirect(currentSession.user.email);
             }
@@ -150,9 +128,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
       password,
     });
-    if (!error) {
-      // Redirect will be handled by onAuthStateChange
-    }
     return { error };
   };
 
