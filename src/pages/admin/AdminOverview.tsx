@@ -1,5 +1,6 @@
 import { useApplications } from "@/hooks/useApplications";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { FileStack, Clock, XCircle, TrendingUp, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import {
@@ -15,6 +16,33 @@ const RANGES = [
   { label: "2025", value: "2025" },
   { label: "2026", value: "2026" },
 ];
+
+// Skeleton for stat cards
+function StatCardSkeleton() {
+  return (
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex items-center gap-3">
+          <Skeleton className="h-10 w-10 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-12" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// Skeleton for chart cards
+function ChartSkeleton({ height = 220 }: { height?: number }) {
+  return (
+    <div className="space-y-3">
+      <Skeleton className="h-4 w-32" />
+      <Skeleton className={`w-full rounded-lg`} style={{ height }} />
+    </div>
+  );
+}
 
 export default function AdminOverview() {
   const { applications, loading } = useApplications();
@@ -46,7 +74,6 @@ export default function AdminOverview() {
     { name: "Rejected", value: stats.rejected, color: "#EF4444" },
   ].filter((d) => d.value > 0);
 
-  // Drill down — daily view for a specific month
   const getDrillDownData = () => {
     if (!drillDown) return [];
     const { month, year } = drillDown;
@@ -110,7 +137,6 @@ export default function AdminOverview() {
   const drillDownData = getDrillDownData();
   const isYearView = ["2024", "2025", "2026"].includes(range);
 
-  // Custom clickable bar for year view
   const handleBarClick = (data: any) => {
     if (isYearView && data && data.activePayload) {
       const point = data.activePayload[0]?.payload;
@@ -124,30 +150,59 @@ export default function AdminOverview() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-heading font-bold">Admin Dashboard</h1>
+
+      {/* Title */}
+      {loading ? (
+        <Skeleton className="h-8 w-48" />
+      ) : (
+        <h1 className="text-2xl font-heading font-bold">Admin Dashboard</h1>
+      )}
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {statCards.map(({ label, value, icon: Icon, color }) => (
-          <Card key={label}>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-3">
-                <div className={`rounded-lg p-2 ${color}`}>
-                  <Icon className="h-5 w-5" />
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => <StatCardSkeleton key={i} />)
+        ) : (
+          statCards.map(({ label, value, icon: Icon, color }) => (
+            <Card key={label}>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <div className={`rounded-lg p-2 ${color}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold">{value}</p>
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-2xl font-bold">{loading ? "..." : value}</p>
-                  <p className="text-xs text-muted-foreground">{label}</p>
+              </CardContent>
+            </Card>
+          ))
+        )}
+      </div>
+
+      {/* Pie + Summary */}
+      {loading ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Card><CardContent className="pt-6"><ChartSkeleton height={220} /></CardContent></Card>
+          <Card>
+            <CardContent className="pt-6 space-y-4">
+              <Skeleton className="h-4 w-28" />
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="flex justify-between">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-16" />
                 </div>
+              ))}
+              <div className="pt-2 border-t flex justify-between">
+                <Skeleton className="h-4 w-12" />
+                <Skeleton className="h-4 w-8" />
               </div>
             </CardContent>
           </Card>
-        ))}
-      </div>
-
-      {!loading && stats.total > 0 && (
+        </div>
+      ) : stats.total > 0 ? (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {/* Pie Chart */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">Application Status</CardTitle>
@@ -167,7 +222,6 @@ export default function AdminOverview() {
             </CardContent>
           </Card>
 
-          {/* Quick Summary */}
           <Card className="flex flex-col justify-center">
             <CardHeader>
               <CardTitle className="text-sm font-medium">Quick Summary</CardTitle>
@@ -198,10 +252,16 @@ export default function AdminOverview() {
             </CardContent>
           </Card>
         </div>
-      )}
+      ) : null}
 
       {/* Trend Chart */}
-      {!loading && stats.total > 0 && (
+      {loading ? (
+        <Card>
+          <CardContent className="pt-6">
+            <ChartSkeleton height={220} />
+          </CardContent>
+        </Card>
+      ) : stats.total > 0 ? (
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-2">
@@ -264,7 +324,8 @@ export default function AdminOverview() {
             </ResponsiveContainer>
           </CardContent>
         </Card>
-      )}
+      ) : null}
+
     </div>
   );
 }
