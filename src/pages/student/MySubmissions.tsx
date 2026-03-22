@@ -2,15 +2,11 @@ import { useState } from "react";
 import { useApplications } from "@/hooks/useApplications";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead,
+  TableHeader, TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Eye, FileText } from "lucide-react";
 import { format } from "date-fns";
@@ -19,6 +15,18 @@ import type { Database } from "@/integrations/supabase/types";
 
 type Application = Database["public"]["Tables"]["applications"]["Row"];
 
+function SkeletonRow() {
+  return (
+    <TableRow>
+      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+      <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+      <TableCell><Skeleton className="h-8 w-16 rounded-md" /></TableCell>
+    </TableRow>
+  );
+}
+
 export default function MySubmissions() {
   const { applications, loading } = useApplications({ studentOnly: true });
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
@@ -26,24 +34,52 @@ export default function MySubmissions() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-heading font-bold">My Submissions</h1>
-        <p className="text-muted-foreground">Track all your submitted applications</p>
+        {loading ? (
+          <>
+            <Skeleton className="h-8 w-40 mb-2" />
+            <Skeleton className="h-4 w-56" />
+          </>
+        ) : (
+          <>
+            <h1 className="text-2xl font-heading font-bold">My Submissions</h1>
+            <p className="text-muted-foreground">Track all your submitted applications</p>
+          </>
+        )}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">All Applications ({applications.length})</CardTitle>
+          {loading ? (
+            <Skeleton className="h-5 w-36" />
+          ) : (
+            <CardTitle className="text-base">
+              All Applications ({applications.length})
+            </CardTitle>
+          )}
         </CardHeader>
         <CardContent>
           {loading ? (
-            <div className="space-y-2">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} className="h-12 animate-pulse rounded bg-muted" />
-              ))}
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Remarks</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonRow key={i} />
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           ) : applications.length === 0 ? (
             <div className="flex flex-col items-center py-10 text-muted-foreground">
-              <FileText className="h-10 w-10 mb-3" />
+              <FileText className="h-10 w-10 mb-3 opacity-40" />
               <p className="font-medium">No applications yet</p>
               <p className="text-sm">Submit your first application to see it here</p>
             </div>
@@ -61,7 +97,7 @@ export default function MySubmissions() {
                 </TableHeader>
                 <TableBody>
                   {applications.map((app) => (
-                    <TableRow key={app.id}>
+                    <TableRow key={app.id} className="hover:bg-muted/40 transition-colors">
                       <TableCell className="whitespace-nowrap">
                         {format(new Date(app.submitted_at), "dd MMM yyyy")}
                       </TableCell>
@@ -75,11 +111,7 @@ export default function MySubmissions() {
                         {app.remarks || "—"}
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedApp(app)}
-                        >
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedApp(app)}>
                           <Eye className="mr-1 h-4 w-4" /> View
                         </Button>
                       </TableCell>
