@@ -24,6 +24,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signInWithGoogle: (role: "student" | "admin") => Promise<void>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -53,9 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAndRedirect = async (userEmail: string | undefined) => {
     if (!userEmail) return;
 
+    // ✅ Don't redirect if already on correct page
+    const path = window.location.pathname;
+    if (
+      path.startsWith("/student") ||
+      path.startsWith("/admin")
+    ) return;
+
     const email = userEmail.toLowerCase();
 
-    // Always check admin first
+    // Check admin first
     const { data: adminData } = await supabase
       .from("admin_emails")
       .select("email")
@@ -63,12 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .maybeSingle();
 
     if (adminData) {
-      // It's an admin
       window.location.href = "/admin";
       return;
     }
 
-    // It's a student — check college email
+    // Check college email for student
     if (!email.endsWith("@iiitsonepat.ac.in")) {
       toast.error("Only college email allowed (@iiitsonepat.ac.in)");
       await supabase.auth.signOut();
@@ -98,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const profileData = await fetchProfile(currentSession.user.id);
             setProfile(profileData);
 
+            // ✅ Only redirect on actual sign in, not on every page load
             if (event === "SIGNED_IN") {
               await checkAndRedirect(currentSession.user.email);
             }
@@ -131,6 +139,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { error };
   };
 
+  // ✅ Google sign in - redirects back to Vercel
+  const signInWithGoogle = async (role: "student" | "admin") => {
+    localStorage.setItem("auth_intent", role);
+    await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: "https://feesync-pro.vercel.app/",
+      },
+    });
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setProfile(null);
@@ -145,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         profile,
         loading,
         signIn,
+        signInWithGoogle,
         signOut,
         refreshProfile,
       }}
