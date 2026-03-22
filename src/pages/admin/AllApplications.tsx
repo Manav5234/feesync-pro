@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/StatusBadge";
 import { ApplicationDetailModal } from "@/components/ApplicationDetailModal";
 import { Eye, Search, CheckCircle, XCircle, Loader2 } from "lucide-react";
@@ -21,12 +22,32 @@ import type { Database } from "@/integrations/supabase/types";
 type Application = Database["public"]["Tables"]["applications"]["Row"];
 type ApplicationStatus = Database["public"]["Enums"]["application_status"];
 
+// Skeleton row component
+function SkeletonRow() {
+  return (
+    <TableRow>
+      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+      <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+      <TableCell><Skeleton className="h-6 w-16 rounded-full" /></TableCell>
+      <TableCell>
+        <div className="flex justify-end gap-1">
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+          <Skeleton className="h-8 w-8 rounded-md" />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export default function AllApplications({ filterStatus }: { filterStatus?: ApplicationStatus }) {
   const { applications, loading, updateApplicationStatus } = useApplications({ status: filterStatus });
   const [selectedApp, setSelectedApp] = useState<Application | null>(null);
   const [search, setSearch] = useState("");
 
-  // Remark modal state
   const [remarkModal, setRemarkModal] = useState<{
     open: boolean;
     appId: string;
@@ -49,7 +70,6 @@ export default function AllApplications({ filterStatus }: { filterStatus?: Appli
   const handleSubmitRemark = async () => {
     if (!remarkModal) return;
     if (remarkModal.action === "rejected" && !remark.trim()) return;
-
     setUpdating(true);
     await updateApplicationStatus(remarkModal.appId, remarkModal.action, remark || undefined);
     setUpdating(false);
@@ -60,12 +80,24 @@ export default function AllApplications({ filterStatus }: { filterStatus?: Appli
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-heading font-bold capitalize">
-          {filterStatus ? `${filterStatus.replace("_", " ")} Applications` : "All Applications"}
-        </h1>
+        <div>
+          {loading ? (
+            <Skeleton className="h-8 w-48" />
+          ) : (
+            <h1 className="text-2xl font-heading font-bold capitalize">
+              {filterStatus ? `${filterStatus.replace("_", " ")} Applications` : "All Applications"}
+            </h1>
+          )}
+        </div>
         <div className="relative w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search by roll no or name" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
+          <Input
+            placeholder="Search by roll no or name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-9"
+            disabled={loading}
+          />
         </div>
       </div>
 
@@ -85,48 +117,60 @@ export default function AllApplications({ filterStatus }: { filterStatus?: Appli
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8">Loading...</TableCell></TableRow>
+                // Show 6 skeleton rows while loading
+                Array.from({ length: 6 }).map((_, i) => (
+                  <SkeletonRow key={i} />
+                ))
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No applications found</TableCell></TableRow>
-              ) : filtered.map((app) => (
-                <TableRow key={app.id}>
-                  <TableCell className="font-mono text-sm">{app.roll_no}</TableCell>
-                  <TableCell>{app.name}</TableCell>
-                  <TableCell>{app.course}</TableCell>
-                  <TableCell className="capitalize">{app.type.replace("_", " ")}</TableCell>
-                  <TableCell>{format(new Date(app.submitted_at), "dd MMM yyyy")}</TableCell>
-                  <TableCell><StatusBadge status={app.status} /></TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-end gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => setSelectedApp(app)} title="View details">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {app.status !== "verified" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                          onClick={() => openRemarkModal(app, "verified")}
-                          title="Verify"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {app.status !== "rejected" && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => openRemarkModal(app, "rejected")}
-                          title="Reject"
-                        >
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                      )}
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-12 text-muted-foreground">
+                    <div className="flex flex-col items-center gap-2">
+                      <Search className="h-8 w-8 opacity-30" />
+                      <p>No applications found</p>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                filtered.map((app) => (
+                  <TableRow key={app.id} className="hover:bg-muted/40 transition-colors">
+                    <TableCell className="font-mono text-sm">{app.roll_no}</TableCell>
+                    <TableCell>{app.name}</TableCell>
+                    <TableCell>{app.course}</TableCell>
+                    <TableCell className="capitalize">{app.type.replace("_", " ")}</TableCell>
+                    <TableCell>{format(new Date(app.submitted_at), "dd MMM yyyy")}</TableCell>
+                    <TableCell><StatusBadge status={app.status} /></TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => setSelectedApp(app)} title="View details">
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {app.status !== "verified" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                            onClick={() => openRemarkModal(app, "verified")}
+                            title="Verify"
+                          >
+                            <CheckCircle className="h-4 w-4" />
+                          </Button>
+                        )}
+                        {app.status !== "rejected" && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => openRemarkModal(app, "rejected")}
+                            title="Reject"
+                          >
+                            <XCircle className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>
@@ -190,7 +234,12 @@ export default function AllApplications({ filterStatus }: { filterStatus?: Appli
       )}
 
       {selectedApp && (
-        <ApplicationDetailModal application={selectedApp} onClose={() => setSelectedApp(null)} onStatusChange={updateApplicationStatus} mode="admin" />
+        <ApplicationDetailModal
+          application={selectedApp}
+          onClose={() => setSelectedApp(null)}
+          onStatusChange={updateApplicationStatus}
+          mode="admin"
+        />
       )}
     </div>
   );
