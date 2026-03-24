@@ -104,11 +104,23 @@ export default function StudentAuth() {
 
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-            <GraduationCap className="h-6 w-6 text-primary" />
+
+          {/* IIIT Sonepat Logo */}
+          <div className="mx-auto mb-3 flex items-center justify-center">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/en/0/00/Indian_Institute_of_Information_Technology%2C_Sonepat_logo.png"
+              alt="IIIT Sonepat"
+              className="h-16 w-16 object-contain"
+              onError={(e) => {
+                (e.target as HTMLImageElement).style.display = "none";
+              }}
+            />
           </div>
+
           <CardTitle className="font-heading text-2xl">Student Portal</CardTitle>
-          <CardDescription>Sign in or create your student account</CardDescription>
+          <CardDescription>
+            IIIT Sonepat · Sign in or create your student account
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Google OAuth */}
