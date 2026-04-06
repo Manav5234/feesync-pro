@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Database } from "@/integrations/supabase/types";
@@ -13,12 +13,12 @@ interface UseApplicationsOptions {
   studentOnly?: boolean;
 }
 
-export function useApplications(options: UseApplicationsOptions = {}) {
-  const { user, profile } = useAuth();
+export function useApplications({ status, studentOnly }: UseApplicationsOptions = {}) {
+  const { user } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchApplications = async () => {
+  const fetchApplications = useCallback(async () => {
     if (!user) return;
 
     let query = supabase
@@ -26,12 +26,12 @@ export function useApplications(options: UseApplicationsOptions = {}) {
       .select("*")
       .order("submitted_at", { ascending: false });
 
-    if (options.studentOnly ) {
+    if (studentOnly) {
       query = query.eq("student_id", user.id);
     }
 
-    if (options.status) {
-      query = query.eq("status", options.status);
+    if (status) {
+      query = query.eq("status", status);
     }
 
     const { data, error } = await query;
@@ -44,7 +44,7 @@ export function useApplications(options: UseApplicationsOptions = {}) {
 
     setApplications(data || []);
     setLoading(false);
-  };
+  }, [user, status, studentOnly]);
 
   const createApplication = async (application: Omit<ApplicationInsert, "student_id">) => {
     if (!user) return { error: new Error("Not authenticated") };
@@ -70,17 +70,17 @@ export function useApplications(options: UseApplicationsOptions = {}) {
 
   const updateApplicationStatus = async (
     applicationId: string,
-    status: ApplicationStatus,
+    newStatus: ApplicationStatus,
     remarks?: string
   ) => {
     if (!user) return { error: new Error("Not authenticated") };
 
     const updateData: Partial<Application> = {
-      status,
+      status: newStatus,
       remarks: remarks || null,
     };
 
-    if (status === "verified" || status === "rejected") {
+    if (newStatus === "verified" || newStatus === "rejected") {
       updateData.verified_at = new Date().toISOString();
       updateData.verified_by = user.id;
     }
@@ -95,15 +95,14 @@ export function useApplications(options: UseApplicationsOptions = {}) {
       return { error };
     }
 
-    // Create notification for student
     const application = applications.find((a) => a.id === applicationId);
     if (application) {
       const message =
-        status === "verified"
+        newStatus === "verified"
           ? `Your application #${applicationId.slice(0, 8)} has been verified ✅`
-          : status === "rejected"
+          : newStatus === "rejected"
           ? `Your application #${applicationId.slice(0, 8)} was rejected ❌${remarks ? `: ${remarks}` : ""}`
-          : `Your application #${applicationId.slice(0, 8)} status updated to ${status}`;
+          : `Your application #${applicationId.slice(0, 8)} status updated to ${newStatus}`;
 
       await supabase.from("notifications").insert({
         user_id: application.student_id,
@@ -112,24 +111,24 @@ export function useApplications(options: UseApplicationsOptions = {}) {
       });
     }
 
-    toast.success(`Application ${status} successfully`);
+    toast.success(`Application ${newStatus} successfully`);
     await fetchApplications();
     return { error: null };
   };
 
   const bulkUpdateStatus = async (
     applicationIds: string[],
-    status: ApplicationStatus,
+    newStatus: ApplicationStatus,
     remarks?: string
   ) => {
     for (const id of applicationIds) {
-      await updateApplicationStatus(id, status, remarks);
+      await updateApplicationStatus(id, newStatus, remarks);
     }
   };
 
   useEffect(() => {
     fetchApplications();
-  }, [user, options.status, options.studentOnly]);
+  }, [fetchApplications]);
 
   return {
     applications,

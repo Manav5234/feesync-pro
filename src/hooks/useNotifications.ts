@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Database } from "@/integrations/supabase/types";
@@ -11,7 +11,7 @@ export function useNotifications() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -29,7 +29,7 @@ export function useNotifications() {
     setNotifications(data || []);
     setUnreadCount(data?.filter((n) => !n.is_read).length || 0);
     setLoading(false);
-  };
+  }, [user]);
 
   const markAsRead = async (notificationId: string) => {
     const { error } = await supabase
@@ -63,7 +63,6 @@ export function useNotifications() {
   useEffect(() => {
     fetchNotifications();
 
-    // Set up realtime subscription
     if (!user) return;
 
     const channelName = `notifications-${user.id}-${Math.random().toString(36).slice(2)}`;
@@ -88,7 +87,7 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user]);
+  }, [user, fetchNotifications]);
 
   return {
     notifications,
