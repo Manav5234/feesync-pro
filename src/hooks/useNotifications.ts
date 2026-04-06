@@ -66,8 +66,9 @@ export function useNotifications() {
     // Set up realtime subscription
     if (!user) return;
 
+    const channelName = `notifications-${user.id}-${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel("notifications")
+      .channel(channelName)
       .on(
         "postgres_changes",
         {
