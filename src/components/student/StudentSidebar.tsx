@@ -1,4 +1,4 @@
-import { Home, FileText, List, Bell, User, LogOut, Menu } from "lucide-react";
+import { Home, FileText, List, Bell, User, LogOut, Menu, Award } from "lucide-react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
