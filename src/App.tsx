@@ -25,6 +25,7 @@ import SubmitApplication from "./pages/student/SubmitApplication";
 import MySubmissions from "./pages/student/MySubmissions";
 import StudentNotifications from "./pages/student/StudentNotifications";
 import StudentProfile from "./pages/student/StudentProfile";
+import RequestCertificate from "./pages/student/RequestCertificate";
 
 // Admin Pages
 import AdminOverview from "./pages/admin/AdminOverview";
