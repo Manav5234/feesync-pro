@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import type { Database } from "@/integrations/supabase/types";
@@ -7,16 +7,12 @@ import { toast } from "sonner";
 type CertificateRequest = Database["public"]["Tables"]["certificate_requests"]["Row"];
 type CertificateInsert = Database["public"]["Tables"]["certificate_requests"]["Insert"];
 
-interface UseCertificatesOptions {
-  studentOnly?: boolean;
-}
-
-export function useCertificates(options: UseCertificatesOptions = {}) {
+export function useCertificates({ studentOnly = false }: { studentOnly?: boolean } = {}) {
   const { user } = useAuth();
   const [requests, setRequests] = useState<CertificateRequest[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchRequests = async () => {
+  const fetchRequests = useCallback(async () => {
     if (!user) return;
 
     let query = supabase
@@ -24,7 +20,7 @@ export function useCertificates(options: UseCertificatesOptions = {}) {
       .select("*")
       .order("requested_at", { ascending: false });
 
-    if (options.studentOnly) {
+    if (studentOnly) {
       query = query.eq("student_id", user.id);
     }
 
@@ -39,7 +35,7 @@ export function useCertificates(options: UseCertificatesOptions = {}) {
 
     setRequests(data || []);
     setLoading(false);
-  };
+  }, [user, studentOnly]);
 
   const createRequest = async (
     request: Omit<CertificateInsert, "student_id">
@@ -64,7 +60,7 @@ export function useCertificates(options: UseCertificatesOptions = {}) {
 
   useEffect(() => {
     fetchRequests();
-  }, [user, options.studentOnly]);
+  }, [fetchRequests]);
 
   return { requests, loading, createRequest, refetch: fetchRequests };
 }
