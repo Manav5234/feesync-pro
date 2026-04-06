@@ -1,4 +1,4 @@
-import { Home, FileText, List, Bell, User, LogOut, Menu } from "lucide-react";
+import { Home, FileText, List, Bell, User, LogOut, Menu, Award } from "lucide-react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -25,6 +25,7 @@ const menuItems = [
   { title: "Home", url: "/student", icon: Home },
   { title: "Submit Application", url: "/student/submit", icon: FileText },
   { title: "My Submissions", url: "/student/submissions", icon: List },
+  { title: "Certificates", url: "/student/certificates", icon: Award },
   { title: "Notifications", url: "/student/notifications", icon: Bell },
   { title: "Profile", url: "/student/profile", icon: User },
 ];

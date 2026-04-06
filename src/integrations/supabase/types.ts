@@ -89,6 +89,54 @@ export type Database = {
         }
         Relationships: []
       }
+      certificate_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          certificate_type: string
+          course: string
+          id: string
+          name: string
+          purpose: string
+          remarks: string | null
+          requested_at: string | null
+          roll_no: string
+          status: string | null
+          student_id: string | null
+          year: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          certificate_type: string
+          course: string
+          id?: string
+          name: string
+          purpose: string
+          remarks?: string | null
+          requested_at?: string | null
+          roll_no: string
+          status?: string | null
+          student_id?: string | null
+          year: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          certificate_type?: string
+          course?: string
+          id?: string
+          name?: string
+          purpose?: string
+          remarks?: string | null
+          requested_at?: string | null
+          roll_no?: string
+          status?: string | null
+          student_id?: string | null
+          year?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           application_id: string
