@@ -25,6 +25,7 @@ const menuItems = [
   { title: "Home", url: "/student", icon: Home },
   { title: "Submit Application", url: "/student/submit", icon: FileText },
   { title: "My Submissions", url: "/student/submissions", icon: List },
+  { title: "Certificates", url: "/student/certificates", icon: Award },
   { title: "Notifications", url: "/student/notifications", icon: Bell },
   { title: "Profile", url: "/student/profile", icon: User },
 ];

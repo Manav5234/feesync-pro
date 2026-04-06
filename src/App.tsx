@@ -63,6 +63,7 @@ const App = () => (
                 <Route path="submissions" element={<MySubmissions />} />
                 <Route path="notifications" element={<StudentNotifications />} />
                 <Route path="profile" element={<StudentProfile />} />
+                <Route path="certificates" element={<RequestCertificate />} />
               </Route>
 
               {/* Admin Routes */}
