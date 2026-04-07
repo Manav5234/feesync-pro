@@ -58,9 +58,47 @@ export function useCertificates({ studentOnly = false }: { studentOnly?: boolean
     return { error: null, data };
   };
 
+  const updateRequest = async (
+    id: string,
+    updates: { status: string; remarks: string | null },
+    notifyInfo: { studentId: string; certificateType: string }
+  ) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from("certificate_requests")
+      .update({
+        status: updates.status,
+        remarks: updates.remarks,
+        approved_by: updates.status === "approved" ? user.id : null,
+        approved_at: updates.status === "approved" ? new Date().toISOString() : null,
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error updating certificate request:", error);
+      toast.error("Failed to update request");
+      return;
+    }
+
+    // Send notification to student
+    const statusLabel = updates.status === "approved" ? "approved ✅" : "rejected ❌";
+    const message = `Your ${notifyInfo.certificateType} request has been ${statusLabel}.${
+      updates.remarks ? ` Remarks: ${updates.remarks}` : ""
+    }`;
+
+    await supabase.from("notifications").insert({
+      user_id: notifyInfo.studentId,
+      message,
+    });
+
+    toast.success(`Request ${updates.status} successfully`);
+    await fetchRequests();
+  };
+
   useEffect(() => {
     fetchRequests();
   }, [fetchRequests]);
 
-  return { requests, loading, createRequest, refetch: fetchRequests };
+  return { requests, loading, createRequest, updateRequest, refetch: fetchRequests };
 }
