@@ -81,9 +81,12 @@ export function StudentSidebar() {
                       <item.icon className="h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
                       {item.title === "Notifications" && unreadCount > 0 && !collapsed && (
-                        <Badge variant="destructive" className="ml-auto h-5 w-5 rounded-full p-0 text-xs">
-                          {unreadCount}
-                        </Badge>
+                        <span className="relative ml-auto flex h-5 min-w-[20px] items-center justify-center">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-destructive/40" />
+                          <span className="relative inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                            {unreadCount}
+                          </span>
+                        </span>
                       )}
                     </RouterNavLink>
                   </SidebarMenuButton>
