@@ -8,6 +8,7 @@ import {
   Send,
   User,
   LogOut,
+  Award,
 } from "lucide-react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -34,6 +35,7 @@ const menuItems = [
   { title: "Pending Review", url: "/admin/pending", icon: Clock },
   { title: "Verified", url: "/admin/verified", icon: CheckCircle },
   { title: "Rejected", url: "/admin/rejected", icon: XCircle },
+  { title: "Certificates", url: "/admin/certificates", icon: Award },
   { title: "Export Excel", url: "/admin/export", icon: Download },
   { title: "Send Notifications", url: "/admin/notifications", icon: Send },
   { title: "Profile", url: "/admin/profile", icon: User },
@@ -71,7 +73,7 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.slice(0, 5).map((item) => (
+              {menuItems.slice(0, 6).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <RouterNavLink
@@ -100,7 +102,7 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Actions</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.slice(5).map((item) => (
+              {menuItems.slice(6).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <RouterNavLink
