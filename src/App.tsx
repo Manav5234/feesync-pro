@@ -33,6 +33,7 @@ import AllApplications from "./pages/admin/AllApplications";
 import ExportExcel from "./pages/admin/ExportExcel";
 import SendNotifications from "./pages/admin/SendNotifications";
 import AdminProfile from "./pages/admin/AdminProfile";
+import AdminCertificates from "./pages/admin/AdminCertificates";
 
 const queryClient = new QueryClient();
 
@@ -73,6 +74,7 @@ const App = () => (
                 <Route path="pending" element={<AllApplications filterStatus="pending" />} />
                 <Route path="verified" element={<AllApplications filterStatus="verified" />} />
                 <Route path="rejected" element={<AllApplications filterStatus="rejected" />} />
+                <Route path="certificates" element={<AdminCertificates />} />
                 <Route path="export" element={<ExportExcel />} />
                 <Route path="notifications" element={<SendNotifications />} />
                 <Route path="profile" element={<AdminProfile />} />
