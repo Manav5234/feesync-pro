@@ -1,4 +1,4 @@
-import { Bell } from "lucide-react";
+import { Bell, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -7,15 +7,37 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Badge } from "@/components/ui/badge";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+
+function getNotificationRoute(message: string): string | null {
+  const lower = message.toLowerCase();
+  if (lower.includes("certificate")) return "/student/certificates";
+  if (lower.includes("application") || lower.includes("verified") || lower.includes("rejected"))
+    return "/student/submissions";
+  return null;
+}
 
 export function NotificationBell() {
   const { notifications, unreadCount, markAsRead, markAllAsRead, loading } = useNotifications();
+  const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+
+  const handleClick = async (notification: typeof notifications[0]) => {
+    if (!notification.is_read) {
+      await markAsRead(notification.id);
+    }
+    const route = getNotificationRoute(notification.message);
+    if (route) {
+      setOpen(false);
+      navigate(route);
+    }
+  };
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
@@ -50,21 +72,30 @@ export function NotificationBell() {
             </div>
           ) : (
             <div className="divide-y">
-              {notifications.map((notification) => (
-                <button
-                  key={notification.id}
-                  onClick={() => !notification.is_read && markAsRead(notification.id)}
-                  className={cn(
-                    "w-full px-4 py-3 text-left hover:bg-muted/50 transition-colors",
-                    !notification.is_read && "bg-primary/5"
-                  )}
-                >
-                  <p className="text-sm">{notification.message}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
-                  </p>
-                </button>
-              ))}
+              {notifications.map((notification) => {
+                const route = getNotificationRoute(notification.message);
+                return (
+                  <button
+                    key={notification.id}
+                    onClick={() => handleClick(notification)}
+                    className={cn(
+                      "w-full px-4 py-3 text-left hover:bg-muted/50 transition-colors",
+                      !notification.is_read && "bg-primary/5",
+                      route && "cursor-pointer"
+                    )}
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <p className="text-sm">{notification.message}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+                      {route && <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           )}
         </ScrollArea>
