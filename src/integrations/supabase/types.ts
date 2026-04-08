@@ -95,6 +95,7 @@ export type Database = {
           approved_by: string | null
           certificate_type: string
           course: string
+          file_url: string | null
           id: string
           name: string
           purpose: string
@@ -110,6 +111,7 @@ export type Database = {
           approved_by?: string | null
           certificate_type: string
           course: string
+          file_url?: string | null
           id?: string
           name: string
           purpose: string
@@ -125,6 +127,7 @@ export type Database = {
           approved_by?: string | null
           certificate_type?: string
           course?: string
+          file_url?: string | null
           id?: string
           name?: string
           purpose?: string
