@@ -60,19 +60,35 @@ export function useCertificates({ studentOnly = false }: { studentOnly?: boolean
 
   const updateRequest = async (
     id: string,
-    updates: { status: string; remarks: string | null },
+    updates: {
+      status: string;
+      remarks: string | null;
+      file_url?: string | null;
+      approved_at?: string | null;
+      approved_by?: string | null;
+    },
     notifyInfo: { studentId: string; certificateType: string }
   ) => {
     if (!user) return;
 
+    const updatePayload: Record<string, unknown> = {
+      status: updates.status,
+      remarks: updates.remarks,
+    };
+
+    if (updates.file_url !== undefined) {
+      updatePayload.file_url = updates.file_url;
+    }
+    if (updates.approved_at !== undefined) {
+      updatePayload.approved_at = updates.approved_at;
+    }
+    if (updates.approved_by !== undefined) {
+      updatePayload.approved_by = updates.approved_by;
+    }
+
     const { error } = await supabase
       .from("certificate_requests")
-      .update({
-        status: updates.status,
-        remarks: updates.remarks,
-        approved_by: updates.status === "approved" ? user.id : null,
-        approved_at: updates.status === "approved" ? new Date().toISOString() : null,
-      })
+      .update(updatePayload)
       .eq("id", id);
 
     if (error) {
@@ -83,9 +99,12 @@ export function useCertificates({ studentOnly = false }: { studentOnly?: boolean
 
     // Send notification to student
     const statusLabel = updates.status === "approved" ? "approved ✅" : "rejected ❌";
-    const message = `Your ${notifyInfo.certificateType} request has been ${statusLabel}.${
-      updates.remarks ? ` Remarks: ${updates.remarks}` : ""
-    }`;
+    const message =
+      updates.status === "approved"
+        ? `Your ${notifyInfo.certificateType} is ready! Click to download. ✅`
+        : `Your ${notifyInfo.certificateType} request has been ${statusLabel}.${
+            updates.remarks ? ` Remarks: ${updates.remarks}` : ""
+          }`;
 
     await supabase.from("notifications").insert({
       user_id: notifyInfo.studentId,
