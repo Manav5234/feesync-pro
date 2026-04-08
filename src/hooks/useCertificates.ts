@@ -71,24 +71,15 @@ export function useCertificates({ studentOnly = false }: { studentOnly?: boolean
   ) => {
     if (!user) return;
 
-    const updatePayload: Record<string, unknown> = {
-      status: updates.status,
-      remarks: updates.remarks,
-    };
-
-    if (updates.file_url !== undefined) {
-      updatePayload.file_url = updates.file_url;
-    }
-    if (updates.approved_at !== undefined) {
-      updatePayload.approved_at = updates.approved_at;
-    }
-    if (updates.approved_by !== undefined) {
-      updatePayload.approved_by = updates.approved_by;
-    }
-
     const { error } = await supabase
       .from("certificate_requests")
-      .update(updatePayload)
+      .update({
+        status: updates.status,
+        remarks: updates.remarks,
+        file_url: updates.file_url ?? null,
+        approved_at: updates.approved_at ?? null,
+        approved_by: updates.approved_by ?? null,
+      })
       .eq("id", id);
 
     if (error) {
