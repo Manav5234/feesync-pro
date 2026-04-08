@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useCertificates } from "@/hooks/useCertificates";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,23 +11,38 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { FileText, CheckCircle, XCircle, Loader2, Search, Award } from "lucide-react";
+import { FileText, CheckCircle, XCircle, Loader2, Search, Award, Upload } from "lucide-react";
 import { format } from "date-fns";
+import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
 
 type CertificateRequest = Database["public"]["Tables"]["certificate_requests"]["Row"];
 
+function formatFileSize(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
 export default function AdminCertificates() {
+  const { user } = useAuth();
   const { requests, loading, updateRequest } = useCertificates();
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
-  const [selectedRequest, setSelectedRequest] = useState<CertificateRequest | null>(null);
-  const [actionType, setActionType] = useState<"approved" | "rejected" | null>(null);
-  const [remarks, setRemarks] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+
+  // Approve dialog state
+  const [approveRequest, setApproveRequest] = useState<CertificateRequest | null>(null);
+  const [approveRemarks, setApproveRemarks] = useState("");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reject dialog state
+  const [rejectRequest, setRejectRequest] = useState<CertificateRequest | null>(null);
+  const [rejectRemarks, setRejectRemarks] = useState("");
+  const [rejecting, setRejecting] = useState(false);
 
   const filtered = requests.filter((req) => {
     const matchesSearch =
@@ -44,32 +61,112 @@ export default function AdminCertificates() {
     rejected: requests.filter((r) => r.status === "rejected").length,
   };
 
-  const openAction = (req: CertificateRequest, type: "approved" | "rejected") => {
-    setSelectedRequest(req);
-    setActionType(type);
-    setRemarks(req.remarks || "");
+  const openApprove = (req: CertificateRequest) => {
+    setApproveRequest(req);
+    setApproveRemarks(req.remarks || "");
+    setSelectedFile(null);
   };
 
-  const closeDialog = () => {
-    setSelectedRequest(null);
-    setActionType(null);
-    setRemarks("");
+  const closeApprove = () => {
+    setApproveRequest(null);
+    setApproveRemarks("");
+    setSelectedFile(null);
   };
 
-  const handleAction = async () => {
-    if (!selectedRequest || !actionType) return;
-    if (actionType === "rejected" && !remarks.trim()) return;
+  const handleApprove = async () => {
+    if (!approveRequest || !selectedFile || !user) return;
 
-    setSubmitting(true);
-    await updateRequest(selectedRequest.id, {
-      status: actionType,
-      remarks: remarks.trim() || null,
-    }, {
-      studentId: selectedRequest.student_id!,
-      certificateType: selectedRequest.certificate_type,
-    });
-    setSubmitting(false);
-    closeDialog();
+    setUploading(true);
+    try {
+      const filePath = `${approveRequest.id}/${selectedFile.name}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("certificates")
+        .upload(filePath, selectedFile, { upsert: true });
+
+      if (uploadError) {
+        toast.error("Failed to upload file: " + uploadError.message);
+        setUploading(false);
+        return;
+      }
+
+      const { data: urlData } = supabase.storage
+        .from("certificates")
+        .getPublicUrl(filePath);
+
+      await updateRequest(
+        approveRequest.id,
+        {
+          status: "approved",
+          remarks: approveRemarks.trim() || null,
+          file_url: urlData.publicUrl,
+          approved_at: new Date().toISOString(),
+          approved_by: user.id,
+        },
+        {
+          studentId: approveRequest.student_id!,
+          certificateType: approveRequest.certificate_type,
+        }
+      );
+
+      closeApprove();
+    } catch (err) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const openReject = (req: CertificateRequest) => {
+    setRejectRequest(req);
+    setRejectRemarks(req.remarks || "");
+  };
+
+  const closeReject = () => {
+    setRejectRequest(null);
+    setRejectRemarks("");
+  };
+
+  const handleReject = async () => {
+    if (!rejectRequest || !rejectRemarks.trim()) return;
+
+    setRejecting(true);
+    await updateRequest(
+      rejectRequest.id,
+      { status: "rejected", remarks: rejectRemarks.trim() },
+      {
+        studentId: rejectRequest.student_id!,
+        certificateType: rejectRequest.certificate_type,
+      }
+    );
+    setRejecting(false);
+    closeReject();
+  };
+
+  const renderActions = (req: CertificateRequest) => {
+    if (req.status === "approved" && req.file_url) {
+      return <Badge className="bg-green-100 text-green-700 border-green-200 dark:bg-green-900/30 dark:text-green-400">Uploaded ✅</Badge>;
+    }
+    if (req.status === "approved" && !req.file_url) {
+      return (
+        <Button size="sm" variant="outline" className="text-blue-600 border-blue-300 hover:bg-blue-50" onClick={() => openApprove(req)}>
+          <Upload className="h-3.5 w-3.5 mr-1" /> Upload File
+        </Button>
+      );
+    }
+    if (req.status === "rejected") {
+      return <Badge variant="destructive">Rejected</Badge>;
+    }
+    return (
+      <div className="flex gap-1">
+        <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20" onClick={() => openApprove(req)}>
+          <CheckCircle className="h-3.5 w-3.5 mr-1" /> Approve
+        </Button>
+        <Button size="sm" variant="outline" className="text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20" onClick={() => openReject(req)}>
+          <XCircle className="h-3.5 w-3.5 mr-1" /> Reject
+        </Button>
+      </div>
+    );
   };
 
   return (
@@ -82,11 +179,7 @@ export default function AdminCertificates() {
       {/* Stats */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         {(["all", "pending", "approved", "rejected"] as const).map((key) => (
-          <Card
-            key={key}
-            className={`cursor-pointer transition-colors ${filterStatus === key ? "border-primary" : ""}`}
-            onClick={() => setFilterStatus(key)}
-          >
+          <Card key={key} className={`cursor-pointer transition-colors ${filterStatus === key ? "border-primary" : ""}`} onClick={() => setFilterStatus(key)}>
             <CardContent className="pt-4 pb-3 px-4">
               <p className="text-xs text-muted-foreground capitalize">{key === "all" ? "Total" : key}</p>
               <p className="text-2xl font-bold">{counts[key]}</p>
@@ -98,12 +191,7 @@ export default function AdminCertificates() {
       {/* Search */}
       <div className="relative max-w-sm">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by name, roll no, type..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-9"
-        />
+        <Input placeholder="Search by name, roll no, type..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
       </div>
 
       {/* Table */}
@@ -151,34 +239,9 @@ export default function AdminCertificates() {
                       <TableCell>{req.roll_no}</TableCell>
                       <TableCell>{req.certificate_type}</TableCell>
                       <TableCell className="max-w-[180px] truncate">{req.purpose}</TableCell>
-                      <TableCell>
-                        <StatusBadge status={req.status || "pending"} />
-                      </TableCell>
-                      <TableCell className="max-w-[150px] truncate text-xs text-muted-foreground">
-                        {req.remarks || "—"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-600 border-green-300 hover:bg-green-50"
-                            onClick={() => openAction(req, "approved")}
-                          >
-                            <CheckCircle className="h-3.5 w-3.5 mr-1" />
-                            Approve
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 border-red-300 hover:bg-red-50"
-                            onClick={() => openAction(req, "rejected")}
-                          >
-                            <XCircle className="h-3.5 w-3.5 mr-1" />
-                            Reject
-                          </Button>
-                        </div>
-                      </TableCell>
+                      <TableCell><StatusBadge status={req.status || "pending"} /></TableCell>
+                      <TableCell className="max-w-[150px] truncate text-xs text-muted-foreground">{req.remarks || "—"}</TableCell>
+                      <TableCell>{renderActions(req)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -188,62 +251,93 @@ export default function AdminCertificates() {
         </CardContent>
       </Card>
 
-      {/* Action Dialog */}
-      <Dialog open={!!selectedRequest && !!actionType} onOpenChange={(open) => !open && closeDialog()}>
-        <DialogContent>
+      {/* Approve / Upload Dialog */}
+      <Dialog open={!!approveRequest} onOpenChange={(open) => !open && closeApprove()}>
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>
-              {actionType === "approved" ? "Approve" : "Reject"} Certificate Request
-            </DialogTitle>
+            <DialogTitle>Approve & Upload Certificate</DialogTitle>
             <DialogDescription>
-              {selectedRequest?.certificate_type} for {selectedRequest?.name} ({selectedRequest?.roll_no})
+              {approveRequest?.certificate_type} for {approveRequest?.name} ({approveRequest?.roll_no})
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <span className="text-muted-foreground">Course:</span>{" "}
-                <span className="font-medium">{selectedRequest?.course}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground">Year:</span>{" "}
-                <span className="font-medium">{selectedRequest?.year}</span>
-              </div>
+              <div><span className="text-muted-foreground">Course:</span> <span className="font-medium">{approveRequest?.course}</span></div>
+              <div><span className="text-muted-foreground">Year:</span> <span className="font-medium">{approveRequest?.year}</span></div>
             </div>
             <div className="text-sm">
-              <span className="text-muted-foreground">Purpose:</span>{" "}
-              <span>{selectedRequest?.purpose}</span>
+              <span className="text-muted-foreground">Purpose:</span> <span>{approveRequest?.purpose}</span>
             </div>
 
             <div className="space-y-2">
-              <Label>
-                Remarks {actionType === "rejected" && <span className="text-destructive">*</span>}
-              </Label>
-              <Textarea
-                value={remarks}
-                onChange={(e) => setRemarks(e.target.value)}
-                placeholder={
-                  actionType === "approved"
-                    ? "Optional remarks..."
-                    : "Reason for rejection (required)"
-                }
-                rows={3}
-              />
+              <Label>Remarks (optional)</Label>
+              <Textarea value={approveRemarks} onChange={(e) => setApproveRemarks(e.target.value)} placeholder="Optional remarks..." rows={2} />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Upload Signed Certificate (PDF)</Label>
+              <div
+                className="border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors hover:border-primary hover:bg-accent/50"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                />
+                {selectedFile ? (
+                  <div className="space-y-1">
+                    <FileText className="h-8 w-8 mx-auto text-primary" />
+                    <p className="text-sm font-medium">{selectedFile.name}</p>
+                    <p className="text-xs text-muted-foreground">{formatFileSize(selectedFile.size)}</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <Upload className="h-8 w-8 mx-auto text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Click to select PDF file</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={closeDialog}>
-              Cancel
+            <Button variant="outline" onClick={closeApprove} disabled={uploading}>Cancel</Button>
+            <Button onClick={handleApprove} disabled={uploading || !selectedFile}>
+              {uploading ? <><Loader2 className="h-4 w-4 animate-spin mr-1" /> Uploading...</> : "Upload & Approve"}
             </Button>
-            <Button
-              onClick={handleAction}
-              disabled={submitting || (actionType === "rejected" && !remarks.trim())}
-              variant={actionType === "approved" ? "default" : "destructive"}
-            >
-              {submitting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
-              {actionType === "approved" ? "Approve & Notify Student" : "Reject & Notify Student"}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reject Dialog */}
+      <Dialog open={!!rejectRequest} onOpenChange={(open) => !open && closeReject()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject Certificate Request</DialogTitle>
+            <DialogDescription>
+              {rejectRequest?.certificate_type} for {rejectRequest?.name} ({rejectRequest?.roll_no})
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="text-sm">
+              <span className="text-muted-foreground">Purpose:</span> <span>{rejectRequest?.purpose}</span>
+            </div>
+            <div className="space-y-2">
+              <Label>Reason for Rejection <span className="text-destructive">*</span></Label>
+              <Textarea value={rejectRemarks} onChange={(e) => setRejectRemarks(e.target.value)} placeholder="Reason for rejection (required)" rows={3} />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={closeReject}>Cancel</Button>
+            <Button variant="destructive" onClick={handleReject} disabled={rejecting || !rejectRemarks.trim()}>
+              {rejecting && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+              Reject & Notify Student
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -10,7 +10,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FileText, Download, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { FileText, Download, Loader2, Clock, XCircle, Info } from "lucide-react";
 import { format } from "date-fns";
 
 const CERTIFICATE_TYPES = [
@@ -51,57 +53,52 @@ export default function RequestCertificate() {
     setSubmitting(false);
   };
 
-  const handleDownloadPDF = (req: typeof requests[0]) => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
+  const renderAction = (req: typeof requests[0]) => {
+    if (req.status === "pending") {
+      return (
+        <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400">
+          <Clock className="h-3 w-3 mr-1" /> Under Review
+        </Badge>
+      );
+    }
 
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>${req.certificate_type}</title>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body { font-family: 'Times New Roman', serif; padding: 60px; color: #1a1a1a; }
-          .header { text-align: center; margin-bottom: 40px; border-bottom: 3px double #333; padding-bottom: 20px; }
-          .header h1 { font-size: 24px; letter-spacing: 2px; margin-bottom: 4px; }
-          .header h2 { font-size: 14px; font-weight: normal; color: #555; }
-          .cert-title { text-align: center; margin: 30px 0; font-size: 22px; text-decoration: underline; letter-spacing: 1px; }
-          .body-text { font-size: 16px; line-height: 2; margin: 20px 0; text-align: justify; }
-          .detail { margin: 8px 0; }
-          .detail strong { display: inline-block; min-width: 140px; }
-          .footer { margin-top: 80px; display: flex; justify-content: space-between; font-size: 14px; }
-          .footer div { text-align: center; }
-          .stamp { border-top: 1px solid #333; padding-top: 8px; min-width: 160px; }
-          @media print { body { padding: 40px; } }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>INDIAN INSTITUTE OF INFORMATION TECHNOLOGY, SONEPAT</h1>
-          <h2>An Institute of National Importance under MoE, Govt. of India</h2>
+    if (req.status === "approved" && req.file_url) {
+      return (
+        <Button size="sm" variant="outline" className="text-green-600 border-green-300 hover:bg-green-50 dark:hover:bg-green-900/20" onClick={() => window.open(req.file_url!, "_blank")}>
+          <Download className="h-3.5 w-3.5 mr-1" /> Download
+        </Button>
+      );
+    }
+
+    if (req.status === "approved" && !req.file_url) {
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400">
+                <Loader2 className="h-3 w-3 mr-1 animate-spin" /> Preparing...
+              </Badge>
+            </TooltipTrigger>
+            <TooltipContent>Admin is preparing your certificate</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    }
+
+    if (req.status === "rejected") {
+      return (
+        <div className="space-y-1">
+          <Badge variant="destructive" className="text-xs">
+            <XCircle className="h-3 w-3 mr-1" /> Rejected
+          </Badge>
+          {req.remarks && (
+            <p className="text-xs text-muted-foreground max-w-[160px] truncate">{req.remarks}</p>
+          )}
         </div>
-        <div class="cert-title">${req.certificate_type.toUpperCase()}</div>
-        <div class="body-text">
-          <p>This is to certify that <strong>${req.name}</strong>, bearing Roll No. <strong>${req.roll_no}</strong>,
-          is a bonafide student of <strong>${req.course}</strong>, Year <strong>${req.year}</strong>,
-          at the Indian Institute of Information Technology, Sonepat.</p>
-          <br/>
-          <p><strong>Purpose:</strong> ${req.purpose}</p>
-          <br/>
-          <p>This certificate is issued upon the request of the student for the above-mentioned purpose.</p>
-        </div>
-        <div class="detail"><strong>Date of Issue:</strong> ${format(new Date(), "dd MMMM yyyy")}</div>
-        <div class="detail"><strong>Reference No:</strong> IIITS/${new Date().getFullYear()}/${req.id.slice(0, 6).toUpperCase()}</div>
-        <div class="footer">
-          <div><div class="stamp">Student's Signature</div></div>
-          <div><div class="stamp">Authorized Signatory</div><div style="margin-top:4px;font-size:12px;">IIIT Sonepat</div></div>
-        </div>
-        <script>window.onload = function() { window.print(); }</script>
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
+      );
+    }
+
+    return <span className="text-xs text-muted-foreground">—</span>;
   };
 
   return (
@@ -137,24 +134,14 @@ export default function RequestCertificate() {
               {certificateType === "Other" && (
                 <div className="space-y-2">
                   <Label>Custom Type</Label>
-                  <Input
-                    value={customType}
-                    onChange={(e) => setCustomType(e.target.value)}
-                    placeholder="Enter certificate type"
-                    required
-                  />
+                  <Input value={customType} onChange={(e) => setCustomType(e.target.value)} placeholder="Enter certificate type" required />
                 </div>
               )}
             </div>
 
             <div className="space-y-2">
               <Label>Purpose</Label>
-              <Textarea
-                value={purpose}
-                onChange={(e) => setPurpose(e.target.value)}
-                placeholder="e.g. For scholarship, bank loan, visa..."
-                required
-              />
+              <Textarea value={purpose} onChange={(e) => setPurpose(e.target.value)} placeholder="e.g. For scholarship, bank loan, visa..." required />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -190,7 +177,13 @@ export default function RequestCertificate() {
           <CardTitle>My Requests</CardTitle>
           <CardDescription>Track the status of your certificate requests</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
+          {/* Info banner */}
+          <div className="flex items-start gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-400">
+            <Info className="h-4 w-4 mt-0.5 shrink-0" />
+            <span>Certificates are prepared and uploaded by the admin. You will be notified when ready to download.</span>
+          </div>
+
           {loading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -221,19 +214,8 @@ export default function RequestCertificate() {
                     </TableCell>
                     <TableCell>{req.certificate_type}</TableCell>
                     <TableCell className="max-w-[200px] truncate">{req.purpose}</TableCell>
-                    <TableCell>
-                      <StatusBadge status={req.status as any} />
-                    </TableCell>
-                    <TableCell>
-                      {req.status === "approved" ? (
-                        <Button size="sm" variant="outline" onClick={() => handleDownloadPDF(req)}>
-                          <Download className="h-3.5 w-3.5 mr-1" />
-                          PDF
-                        </Button>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )}
-                    </TableCell>
+                    <TableCell><StatusBadge status={req.status as any} /></TableCell>
+                    <TableCell>{renderAction(req)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
