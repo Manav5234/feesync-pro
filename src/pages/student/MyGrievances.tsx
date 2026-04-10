@@ -16,7 +16,6 @@ import { MessageSquare, Loader2, Send, Eye, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
 import type { Grievance } from "@/hooks/useGrievances";
-import { motion } from "framer-motion";
 
 const CATEGORIES = ["Fee Related", "Certificate", "Academic", "Other"];
 
@@ -40,6 +39,7 @@ export default function MyGrievances() {
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [viewGrievance, setViewGrievance] = useState<Grievance | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,12 +190,12 @@ export default function MyGrievances() {
                           {g.admin_response ? (
                             <TooltipProvider>
                               <Tooltip>
-                                <TooltipTrigger>
-                                  <Info className="h-4 w-4 text-primary cursor-pointer" />
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewGrievance(g)}>
+                                    <Eye className="h-4 w-4 text-primary" />
+                                  </Button>
                                 </TooltipTrigger>
-                                <TooltipContent className="max-w-xs">
-                                  <p className="text-sm">{g.admin_response}</p>
-                                </TooltipContent>
+                                <TooltipContent>View Response</TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           ) : (
