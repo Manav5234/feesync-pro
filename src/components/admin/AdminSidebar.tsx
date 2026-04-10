@@ -75,7 +75,7 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Dashboard</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.slice(0, 6).map((item) => (
+              {menuItems.slice(0, 7).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <RouterNavLink
@@ -104,7 +104,7 @@ export function AdminSidebar() {
           <SidebarGroupLabel>Actions</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.slice(6).map((item) => (
+              {menuItems.slice(7).map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <RouterNavLink
