@@ -178,6 +178,57 @@ export type Database = {
           },
         ]
       }
+      grievances: {
+        Row: {
+          admin_response: string | null
+          category: string
+          course: string | null
+          description: string
+          id: string
+          name: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          roll_no: string | null
+          status: string
+          student_id: string
+          subject: string
+          submitted_at: string | null
+          year: string | null
+        }
+        Insert: {
+          admin_response?: string | null
+          category: string
+          course?: string | null
+          description: string
+          id?: string
+          name?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          roll_no?: string | null
+          status?: string
+          student_id: string
+          subject: string
+          submitted_at?: string | null
+          year?: string | null
+        }
+        Update: {
+          admin_response?: string | null
+          category?: string
+          course?: string | null
+          description?: string
+          id?: string
+          name?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          roll_no?: string | null
+          status?: string
+          student_id?: string
+          subject?: string
+          submitted_at?: string | null
+          year?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           application_id: string | null
