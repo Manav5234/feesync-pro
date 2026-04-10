@@ -9,6 +9,7 @@ import {
   User,
   LogOut,
   Award,
+  MessageSquare,
 } from "lucide-react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,6 +37,7 @@ const menuItems = [
   { title: "Verified", url: "/admin/verified", icon: CheckCircle },
   { title: "Rejected", url: "/admin/rejected", icon: XCircle },
   { title: "Certificates", url: "/admin/certificates", icon: Award },
+  { title: "Grievances", url: "/admin/grievances", icon: MessageSquare },
   { title: "Export Excel", url: "/admin/export", icon: Download },
   { title: "Send Notifications", url: "/admin/notifications", icon: Send },
   { title: "Profile", url: "/admin/profile", icon: User },
