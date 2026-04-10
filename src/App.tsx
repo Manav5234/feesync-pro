@@ -26,6 +26,7 @@ import MySubmissions from "./pages/student/MySubmissions";
 import StudentNotifications from "./pages/student/StudentNotifications";
 import StudentProfile from "./pages/student/StudentProfile";
 import RequestCertificate from "./pages/student/RequestCertificate";
+import MyGrievances from "./pages/student/MyGrievances";
 
 // Admin Pages
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -34,6 +35,7 @@ import ExportExcel from "./pages/admin/ExportExcel";
 import SendNotifications from "./pages/admin/SendNotifications";
 import AdminProfile from "./pages/admin/AdminProfile";
 import AdminCertificates from "./pages/admin/AdminCertificates";
+import ManageGrievances from "./pages/admin/ManageGrievances";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +67,7 @@ const App = () => (
                 <Route path="notifications" element={<StudentNotifications />} />
                 <Route path="profile" element={<StudentProfile />} />
                 <Route path="certificates" element={<RequestCertificate />} />
+                <Route path="grievances" element={<MyGrievances />} />
               </Route>
 
               {/* Admin Routes */}
@@ -75,6 +78,7 @@ const App = () => (
                 <Route path="verified" element={<AllApplications filterStatus="verified" />} />
                 <Route path="rejected" element={<AllApplications filterStatus="rejected" />} />
                 <Route path="certificates" element={<AdminCertificates />} />
+                <Route path="grievances" element={<ManageGrievances />} />
                 <Route path="export" element={<ExportExcel />} />
                 <Route path="notifications" element={<SendNotifications />} />
                 <Route path="profile" element={<AdminProfile />} />
