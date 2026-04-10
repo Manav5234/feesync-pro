@@ -211,6 +211,39 @@ export default function MyGrievances() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* View Response Dialog */}
+      <Dialog open={!!viewGrievance} onOpenChange={(o) => !o && setViewGrievance(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Admin Response</DialogTitle>
+          </DialogHeader>
+          {viewGrievance && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground">Subject</p>
+                <p className="font-medium">{viewGrievance.subject}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Category</p>
+                <Badge variant="outline" className="text-xs">{viewGrievance.category}</Badge>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Status</p>
+                <Badge variant="outline" className={STATUS_STYLES[viewGrievance.status] || ""}>
+                  {STATUS_LABELS[viewGrievance.status] || viewGrievance.status}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Response</p>
+                <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
+                  {viewGrievance.admin_response}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
