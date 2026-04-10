@@ -8,11 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MessageSquare, Loader2, Send, Info, AlertCircle } from "lucide-react";
+import { MessageSquare, Loader2, Send, Eye, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
+import { motion } from "framer-motion";
+import type { Grievance } from "@/hooks/useGrievances";
 import { motion } from "framer-motion";
 
 const CATEGORIES = ["Fee Related", "Certificate", "Academic", "Other"];
