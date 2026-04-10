@@ -8,12 +8,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MessageSquare, Loader2, Send, Info, AlertCircle } from "lucide-react";
+import { MessageSquare, Loader2, Send, Eye, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import type { Grievance } from "@/hooks/useGrievances";
 
 const CATEGORIES = ["Fee Related", "Certificate", "Academic", "Other"];
 
@@ -37,6 +39,7 @@ export default function MyGrievances() {
   const [subject, setSubject] = useState("");
   const [description, setDescription] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [viewGrievance, setViewGrievance] = useState<Grievance | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,12 +190,12 @@ export default function MyGrievances() {
                           {g.admin_response ? (
                             <TooltipProvider>
                               <Tooltip>
-                                <TooltipTrigger>
-                                  <Info className="h-4 w-4 text-primary cursor-pointer" />
+                                <TooltipTrigger asChild>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewGrievance(g)}>
+                                    <Eye className="h-4 w-4 text-primary" />
+                                  </Button>
                                 </TooltipTrigger>
-                                <TooltipContent className="max-w-xs">
-                                  <p className="text-sm">{g.admin_response}</p>
-                                </TooltipContent>
+                                <TooltipContent>View Response</TooltipContent>
                               </Tooltip>
                             </TooltipProvider>
                           ) : (
@@ -208,6 +211,39 @@ export default function MyGrievances() {
           </CardContent>
         </Card>
       </motion.div>
+
+      {/* View Response Dialog */}
+      <Dialog open={!!viewGrievance} onOpenChange={(o) => !o && setViewGrievance(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Admin Response</DialogTitle>
+          </DialogHeader>
+          {viewGrievance && (
+            <div className="space-y-3">
+              <div>
+                <p className="text-xs text-muted-foreground">Subject</p>
+                <p className="font-medium">{viewGrievance.subject}</p>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Category</p>
+                <Badge variant="outline" className="text-xs">{viewGrievance.category}</Badge>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">Status</p>
+                <Badge variant="outline" className={STATUS_STYLES[viewGrievance.status] || ""}>
+                  {STATUS_LABELS[viewGrievance.status] || viewGrievance.status}
+                </Badge>
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">Response</p>
+                <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
+                  {viewGrievance.admin_response}
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
