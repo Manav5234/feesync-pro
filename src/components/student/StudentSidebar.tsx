@@ -1,4 +1,4 @@
-import { Home, FileText, List, Bell, User, LogOut, Menu, Award, MessageSquare } from "lucide-react";
+import { Home, FileText, List, Bell, User, LogOut, Menu, Award, MessageSquare, Megaphone } from "lucide-react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -27,6 +27,7 @@ const menuItems = [
   { title: "My Submissions", url: "/student/submissions", icon: List },
   { title: "Certificates", url: "/student/certificates", icon: Award },
   { title: "Grievances", url: "/student/grievances", icon: MessageSquare },
+  { title: "Announcements", url: "/student/announcements", icon: Megaphone },
   { title: "Notifications", url: "/student/notifications", icon: Bell },
   { title: "Profile", url: "/student/profile", icon: User },
 ];
