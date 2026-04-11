@@ -10,6 +10,7 @@ import {
   LogOut,
   Award,
   MessageSquare,
+  Megaphone,
 } from "lucide-react";
 import { NavLink as RouterNavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,6 +41,7 @@ const menuItems = [
   { title: "Grievances", url: "/admin/grievances", icon: MessageSquare },
   { title: "Export Excel", url: "/admin/export", icon: Download },
   { title: "Send Notifications", url: "/admin/notifications", icon: Send },
+  { title: "Announcements", url: "/admin/announcements", icon: Megaphone },
   { title: "Profile", url: "/admin/profile", icon: User },
 ];
 

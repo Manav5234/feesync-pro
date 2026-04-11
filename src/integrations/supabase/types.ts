@@ -32,6 +32,48 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string
+          expires_at: string | null
+          id: string
+          is_pinned: boolean | null
+          priority: string
+          target_audience: string | null
+          target_course: string | null
+          target_year: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description: string
+          expires_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          priority?: string
+          target_audience?: string | null
+          target_course?: string | null
+          target_year?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string
+          expires_at?: string | null
+          id?: string
+          is_pinned?: boolean | null
+          priority?: string
+          target_audience?: string | null
+          target_course?: string | null
+          target_year?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       applications: {
         Row: {
           course: string

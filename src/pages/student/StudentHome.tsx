@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useApplications } from "@/hooks/useApplications";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useCertificates } from "@/hooks/useCertificates";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,11 @@ export default function StudentHome() {
       initial="hidden"
       animate="show"
     >
+      {/* ── Announcements ── */}
+      <motion.div variants={item}>
+        <AnnouncementBanner />
+      </motion.div>
+
       {/* ── Welcome Banner ── */}
       <motion.div variants={item}>
         <Card className="overflow-hidden border-none bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
