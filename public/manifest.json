@@ -1,0 +1,21 @@
+{
+  "name": "FeeSync Pro - IIIT Sonepat",
+  "short_name": "FeeSync",
+  "description": "College fee management system for IIIT Sonepat students",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "en-IN",
+  "scope": "/"
+}
