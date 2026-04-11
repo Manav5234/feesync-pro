@@ -99,6 +99,11 @@ export default function StudentHome() {
       initial="hidden"
       animate="show"
     >
+      {/* ── Announcements ── */}
+      <motion.div variants={item}>
+        <AnnouncementBanner />
+      </motion.div>
+
       {/* ── Welcome Banner ── */}
       <motion.div variants={item}>
         <Card className="overflow-hidden border-none bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
