@@ -2,6 +2,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useApplications } from "@/hooks/useApplications";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useCertificates } from "@/hooks/useCertificates";
+import { AnnouncementBanner } from "@/components/AnnouncementBanner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";

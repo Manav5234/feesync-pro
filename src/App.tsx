@@ -36,6 +36,7 @@ import SendNotifications from "./pages/admin/SendNotifications";
 import AdminProfile from "./pages/admin/AdminProfile";
 import AdminCertificates from "./pages/admin/AdminCertificates";
 import ManageGrievances from "./pages/admin/ManageGrievances";
+import Announcements from "./pages/admin/Announcements";
 
 const queryClient = new QueryClient();
 
@@ -82,6 +83,7 @@ const App = () => (
                 <Route path="export" element={<ExportExcel />} />
                 <Route path="notifications" element={<SendNotifications />} />
                 <Route path="profile" element={<AdminProfile />} />
+                <Route path="announcements" element={<Announcements />} />
               </Route>
 
               <Route path="/forgot-password/:role" element={<ForgotPassword />} />
