@@ -6,6 +6,7 @@ import { Pin, Megaphone } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 const priorityConfig = {
   urgent: {
@@ -30,6 +31,7 @@ const priorityConfig = {
 
 export function AnnouncementBanner() {
   const { announcements, loading } = useAnnouncements();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
@@ -54,8 +56,8 @@ export function AnnouncementBanner() {
         <Megaphone className="h-5 w-5 text-primary" />
         <h3 className="font-semibold text-foreground">Announcements</h3>
         {announcements.length > 3 && (
-          <Badge variant="secondary" className="text-xs">
-            +{announcements.length - 3} more
+          <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-secondary/80" onClick={() => navigate("/student/announcements")}>
+            +{announcements.length - 3} more · View all
           </Badge>
         )}
       </div>

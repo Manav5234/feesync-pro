@@ -27,6 +27,7 @@ import StudentNotifications from "./pages/student/StudentNotifications";
 import StudentProfile from "./pages/student/StudentProfile";
 import RequestCertificate from "./pages/student/RequestCertificate";
 import MyGrievances from "./pages/student/MyGrievances";
+import StudentAnnouncements from "./pages/student/StudentAnnouncements";
 
 // Admin Pages
 import AdminOverview from "./pages/admin/AdminOverview";
@@ -69,6 +70,7 @@ const App = () => (
                 <Route path="profile" element={<StudentProfile />} />
                 <Route path="certificates" element={<RequestCertificate />} />
                 <Route path="grievances" element={<MyGrievances />} />
+                <Route path="announcements" element={<StudentAnnouncements />} />
               </Route>
 
               {/* Admin Routes */}
