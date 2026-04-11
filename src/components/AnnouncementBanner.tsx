@@ -31,6 +31,7 @@ const priorityConfig = {
 
 export function AnnouncementBanner() {
   const { announcements, loading } = useAnnouncements();
+  const navigate = useNavigate();
 
   if (loading) {
     return (
