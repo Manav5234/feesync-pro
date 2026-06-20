@@ -54,12 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAndRedirect = async (userEmail: string | undefined) => {
     if (!userEmail) return;
 
-    // ✅ Don't redirect if already on correct page
+    // ✅ Don't redirect if already inside an authenticated area
+    // (exclude auth pages like /student-auth and /admin-auth)
     const path = window.location.pathname;
-    if (
-      path.startsWith("/student") ||
-      path.startsWith("/admin")
-    ) return;
+    const inStudentArea = path === "/student" || path.startsWith("/student/");
+    const inAdminArea = path === "/admin" || path.startsWith("/admin/");
+    if (inStudentArea || inAdminArea) return;
 
     const email = userEmail.toLowerCase();
 
